@@ -1,0 +1,5 @@
+,before_ac,before_ac,before_frs,before_frs,before_invariants,before_invariants,before_neg_req,before_neg_req,before_constraints,before_constraints,before_exception,before_exception,before_tie_breaking,before_tie_breaking
+,sum,mean,sum,mean,sum,mean,sum,mean,sum,mean,sum,mean,sum,mean
+specification,,,,,,,,,,,,,,
+G2,23,0.958,0,0.0,0,0.0,0,0.0,23,0.958,0,0.0,0,0.0
+G3,0,0.0,24,1.0,23,0.958,23,0.958,24,1.0,16,0.667,21,0.875

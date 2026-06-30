@@ -1,0 +1,36 @@
+requirement,requirement_label,failure_mode,risk_difference,P_fail_req_absent,P_fail_req_present,n_req_absent,n_req_present,status
+before_ac,Acceptance Criteria,CO,-0.040000000000000036,0.96,1.0,25,23,ok
+before_ac,Acceptance Criteria,IV,-0.31999999999999995,0.68,1.0,25,23,ok
+before_ac,Acceptance Criteria,TB,0.0,0.0,0.0,25,23,ok
+before_ac,Acceptance Criteria,EC,-0.07999999999999996,0.92,1.0,25,23,ok
+before_ac,Acceptance Criteria,AI,-0.31999999999999995,0.68,1.0,25,23,ok
+before_frs,Functional Requirements,CO,0.04166666666666663,1.0,0.9583333333333334,24,24,ok
+before_frs,Functional Requirements,IV,0.33333333333333337,1.0,0.6666666666666666,24,24,ok
+before_frs,Functional Requirements,TB,0.0,0.0,0.0,24,24,ok
+before_frs,Functional Requirements,EC,0.08333333333333337,1.0,0.9166666666666666,24,24,ok
+before_frs,Functional Requirements,AI,0.33333333333333337,1.0,0.6666666666666666,24,24,ok
+before_invariants,Invariants,CO,0.04347826086956519,1.0,0.9565217391304348,25,23,ok
+before_invariants,Invariants,IV,0.34782608695652173,1.0,0.6521739130434783,25,23,ok
+before_invariants,Invariants,TB,0.0,0.0,0.0,25,23,ok
+before_invariants,Invariants,EC,0.08695652173913049,1.0,0.9130434782608695,25,23,ok
+before_invariants,Invariants,AI,0.34782608695652173,1.0,0.6521739130434783,25,23,ok
+before_neg_req,Negative Requirements,CO,0.04347826086956519,1.0,0.9565217391304348,25,23,ok
+before_neg_req,Negative Requirements,IV,0.34782608695652173,1.0,0.6521739130434783,25,23,ok
+before_neg_req,Negative Requirements,TB,0.0,0.0,0.0,25,23,ok
+before_neg_req,Negative Requirements,EC,0.08695652173913049,1.0,0.9130434782608695,25,23,ok
+before_neg_req,Negative Requirements,AI,0.34782608695652173,1.0,0.6521739130434783,25,23,ok
+before_constraints,Constraints,CO,0.021276595744680882,1.0,0.9787234042553191,1,47,ok
+before_constraints,Constraints,IV,0.17021276595744683,1.0,0.8297872340425532,1,47,ok
+before_constraints,Constraints,TB,0.0,0.0,0.0,1,47,ok
+before_constraints,Constraints,EC,0.04255319148936165,1.0,0.9574468085106383,1,47,ok
+before_constraints,Constraints,AI,0.17021276595744683,1.0,0.8297872340425532,1,47,ok
+before_exception,Exception Handling,CO,-0.03125,0.96875,1.0,32,16,ok
+before_exception,Exception Handling,IV,0.125,0.875,0.75,32,16,ok
+before_exception,Exception Handling,TB,0.0,0.0,0.0,32,16,ok
+before_exception,Exception Handling,EC,-0.0625,0.9375,1.0,32,16,ok
+before_exception,Exception Handling,AI,0.125,0.875,0.75,32,16,ok
+before_tie_breaking,Tie-Breaking Rules,CO,0.04761904761904767,1.0,0.9523809523809523,27,21,ok
+before_tie_breaking,Tie-Breaking Rules,IV,0.21164021164021163,0.9259259259259259,0.7142857142857143,27,21,ok
+before_tie_breaking,Tie-Breaking Rules,TB,0.0,0.0,0.0,27,21,ok
+before_tie_breaking,Tie-Breaking Rules,EC,0.010582010582010581,0.9629629629629629,0.9523809523809523,27,21,ok
+before_tie_breaking,Tie-Breaking Rules,AI,0.21164021164021163,0.9259259259259259,0.7142857142857143,27,21,ok

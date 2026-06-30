@@ -1,0 +1,21 @@
+{
+  "n_participants_g2g3": 48,
+  "specification_counts": {
+    "G2": 24,
+    "G3": 24
+  },
+  "task_counts": {
+    "B": 24,
+    "A": 24
+  },
+  "requirement_presence_overall": {
+    "Acceptance Criteria": 23,
+    "Functional Requirements": 24,
+    "Invariants": 23,
+    "Negative Requirements": 23,
+    "Constraints": 47,
+    "Exception Handling": 16,
+    "Tie-Breaking Rules": 21
+  },
+  "outputs_directory": "rq2_outputs"
+}

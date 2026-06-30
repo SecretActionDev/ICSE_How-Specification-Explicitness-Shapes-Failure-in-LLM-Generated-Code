@@ -1,0 +1,8 @@
+unified_column,label,source_columns
+before_ac,Acceptance Criteria,before_g2_ac
+before_frs,Functional Requirements,before_g3_frs
+before_invariants,Invariants,before_g3_invariants
+before_neg_req,Negative Requirements,before_g3_neg_req
+before_constraints,Constraints,before_g2_constraints; before_g3_constraints
+before_exception,Exception Handling,before_g3_exception
+before_tie_breaking,Tie-Breaking Rules,before_g3_tie_breaking

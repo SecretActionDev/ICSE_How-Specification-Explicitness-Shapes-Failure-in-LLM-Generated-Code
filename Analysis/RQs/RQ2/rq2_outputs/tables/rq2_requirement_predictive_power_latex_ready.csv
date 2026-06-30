@@ -1,0 +1,8 @@
+label,OR [95% CI],$p$,present_n,absent_n
+Functional Requirements,"0.36 [0.29, 0.44]",<0.001,24,24
+Invariants,"0.38 [0.31, 0.47]",<0.001,23,25
+Negative Requirements,"0.38 [0.31, 0.47]",<0.001,23,25
+Constraints,"0.74 [0.37, 1.47]",0.384,47,1
+Acceptance Criteria,"2.73 [2.23, 3.35]",<0.001,23,25
+Exception Handling,"0.67 [0.55, 0.83]",<0.001,16,32
+Tie-Breaking Rules,"0.50 [0.41, 0.62]",<0.001,21,27
