@@ -1,0 +1,5 @@
+spec_condition,alignment_group,n,prompt_alignment_mean,failure_count_mean,passed_tests_mean,failure_diversity_mean,full_correctness_rate
+G2,High alignment,16,0.65625,19.25,13.75,4.0,0.0
+G2,Low alignment,8,0.03125,20.5,12.5,4.0,0.0
+G3,High alignment,19,0.6842105263157895,9.68421052631579,23.31578947368421,3.1052631578947367,0.05263157894736842
+G3,Low alignment,5,0.1875,17.8,15.2,3.6,0.0

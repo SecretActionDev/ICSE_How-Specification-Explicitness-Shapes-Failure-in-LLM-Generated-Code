@@ -1,0 +1,12 @@
+RQ1 item,Implemented,Where
+Failure count compared across G1/G2/G3,Yes,"ANOVA, Tukey HSD, NB regression"
+Passed tests compared across G1/G2/G3,Yes,"ANOVA, Tukey HSD, effect sizes"
+Full correctness reported descriptively,Yes,Descriptive/paper tables
+Normalized failure frequencies by failure class,Yes,Failure-mode section and paper table
+Failure-mode diversity compared across conditions,Yes,"ANOVA, Tukey HSD, effect sizes"
+Partial eta squared with 95% CI,Yes,Bootstrap eta table
+Hedges' g with 95% CI,Yes,Pairwise effect-size table
+Negative binomial model with controls,Yes,NB IRR table
+G2/G3 high-vs-low alignment analysis,Yes,Alignment descriptives and NB model
+Continuous G2/G3 alignment model,Yes,Alignment NB model
+Secondary prompt behavior analyses,"Yes, where available",Behavior-to-failure-class models

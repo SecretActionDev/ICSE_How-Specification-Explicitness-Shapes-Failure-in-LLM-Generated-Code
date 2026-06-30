@@ -1,0 +1,4 @@
+analysis,model,predictor,outcome,estimate,CI_low,CI_high,p,interpretation,p_holm
+Constraints in prompt → CO failures,OLS robust SE,constraints_in_prompt,norm_fail_CO,-0.14369083103521113,-0.34708927474915274,0.05970761267873048,0.16616974464693313,Change in normalized failure frequency associated with predictor,0.4985092339407994
+Edge cases in prompt → EC failures,OLS robust SE,edge_cases_in_prompt,norm_fail_EC,-0.06900129888909533,-0.19307894745884968,0.05507634968065901,0.27572939096850224,Change in normalized failure frequency associated with predictor,0.5514587819370045
+Tests requested → total failures,glm_negative_binomial_alpha_1,tests_requested,failure_count,1.1446165627645848,0.550930718507087,2.3780613999982636,0.7173197486900248,IRR for failure count associated with predictor,0.7173197486900248
