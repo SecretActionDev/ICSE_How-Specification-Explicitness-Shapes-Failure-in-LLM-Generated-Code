@@ -96,7 +96,6 @@ The release should be versioned as an immutable archival snapshot. Record the co
 │   ├── demographic/
 │   ├── failure_mode_maps/
 │   ├── prompt_data/
-│   └── raw_data/
 ├── Hidden_tests/
 │   ├── hidden_tests_TaskA.py
 │   └── hidden_tests_TaskB.py
@@ -122,24 +121,7 @@ Generated outputs are retained alongside their notebooks so reviewers can compar
 
 Participant identifiers use the format `S0001`–`S0072`. 
 
-### 5.2 Raw participant artifacts
-
-`Data/raw_data/Phase1_raw/` and `Data/raw_data/Phase2_raw/` contain one directory per participant. Depending on the submission, a directory includes:
-
-```text
-Sxxxx/
-├── docs/
-│   ├── LLM_transcript.json
-│   └── LLM_transcript.txt
-├── src/
-│   └── solution.py
-└── tests/
-    └── test_solution.py
-```
-
-Some participant repositories used slightly different test-file locations. The analysis relies on the normalized participant-level CSV files, not on a fixed participant directory layout.
-
-### 5.3 Hidden tests and failure taxonomy
+### 5.2 Hidden tests and failure taxonomy
 
 - `Hidden_tests/hidden_tests_TaskA.py`
 - `Hidden_tests/hidden_tests_TaskB.py`
@@ -181,7 +163,7 @@ Each task contains 33 executable hidden-test cases, but the cases are intentiona
 > This normalization is necessary because the classes contain different numbers of hidden tests and because the class distribution differs across Tasks A and B. It ensures that a class with more tests, such as CO in Task B, does not mechanically produce a larger failure value. For Task B, no hidden test is labeled TB; its TB denominator is therefore zero, and Task-B observations are treated as undefined for that class rather than as successful tie-breaking tests.
 
 
-### 5.4 Prompt datasets
+### 5.3 Prompt datasets
 
 | Path | Shape | Description |
 |---|---:|---|
@@ -714,26 +696,8 @@ Prompt-effort sensitivity models were adjusted for condition, phase, task, Pytho
 
 No prompt-effort or prompt-type predictor remained significant after correction. Within G2/G3, a one-unit increase in adherence was associated with a 7.77-percentage-point lower signed calibration gap, 95% CI [−14.65, −0.89], \(p=.027\).
 
-## 13. Running hidden tests on an individual submission
 
-The following example evaluates one Task-A Phase-I solution in an isolated temporary directory:
-
-```bash
-tmpdir="$(mktemp -d)"
-cp Data/raw_data/Phase1_raw/S0001/src/solution.py "$tmpdir/solution.py"
-cp Hidden_tests/hidden_tests_TaskA.py "$tmpdir/test_hidden.py"
-(
-  cd "$tmpdir"
-  python -m pytest -q test_hidden.py
-)
-rm -rf "$tmpdir"
-```
-
-For Task B, replace the participant with a Task-B participant and copy `hidden_tests_TaskB.py`. Determine task assignment from `Data/dataset_phase1.csv`.
-
-Participant repositories vary in their local test-file layout. Copying `solution.py` and the relevant hidden test into a temporary directory avoids import-path conflicts.
-
-## 14. Expected runtime and reproducibility notes
+## 13. Expected runtime and reproducibility notes
 
 - Quick verification: under one minute.
 - RQ2–RQ4 notebooks: typically a few minutes each on a modern laptop.
@@ -743,11 +707,11 @@ Participant repositories vary in their local test-file layout. Copying `solution
 - Bootstrap intervals should be stable because RQ1 uses random seed 2026.
 - External LLM relabeling is not bit-for-bit reproducible because model endpoints can change; the released coded CSVs are the canonical inputs to the statistical analyses.
 
-## 15. Troubleshooting
+## 14. Troubleshooting
 
 ### `Could not find a 'data' folder`
 
-Create the lowercase `data` alias described in Section 8. This is needed by the RQ1 notebook.
+Create the lowercase `data` alias described in Section 8. This is needed by the RQ1 notebook. The Data folder is also included. 
 
 ### Fonts differ in regenerated figures
 
