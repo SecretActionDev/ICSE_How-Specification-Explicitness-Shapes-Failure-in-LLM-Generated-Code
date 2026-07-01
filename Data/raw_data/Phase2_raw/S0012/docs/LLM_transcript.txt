@@ -1,0 +1,414 @@
+Prompt 1: Help me update this code for this new requriementsYou are asked to implement a Python function that suggests possible meeting time slots for a given day. The function takes as input a list of existing calendar events for that day and a desired meeting duration. Its goal is to return a list of valid start times at which the meeting could be scheduled. A valid time slot should respect typical working hours and should not conflict with existing events. If no suitable time slots are available, the function should return an empty list. You may assume that time values are provided in a standard string format (e.g., “09:30”), and you are free to choose an appropriate internal representation. 
+
+new requirement: Meetings scheduled on Fridays must not start after 15:00. This requirement applies in addition to all previously described behavior. If a meeting would otherwise be valid but starts after 15:00 on a Friday, it must be excluded from the returned results. Update your solution, tests and documents to incorporate this requirement.
+
+, , 
+ ## Student Name: Lamisa Quaiyum Shamma
+## Student ID: 221448105
+
+from typing import List, Dict
+from datetime import datetime, timedelta
+
+def suggest_slots(
+ events: List[Dict[str, str]],
+ meeting_duration: int,
+ day: str
+) -> List[str]:
+
+ WORK_START = datetime.strptime("09:00", "%H:%M")
+ WORK_END = datetime.strptime("17:00", "%H:%M")
+ LUNCH_START = datetime.strptime("12:00", "%H:%M")
+ LUNCH_END = datetime.strptime("13:00", "%H:%M")
+
+ # Convert events to datetime ranges and filter relevant ones
+ parsed_events = []
+ for e in events:
+ start = datetime.strptime(e["start"], "%H:%M")
+ end = datetime.strptime(e["end"], "%H:%M")
+
+ # Ignore events completely outside working hours
+ if end <= WORK_START or start >= WORK_END:
+ continue
+
+ parsed_events.append((start, end))
+
+ # Sort events
+ parsed_events.sort(key=lambda x: x[0])
+
+ slots = []
+ current = WORK_START
+ delta = timedelta(minutes=15)
+ meeting_delta = timedelta(minutes=meeting_duration)
+
+ while current + meeting_delta <= WORK_END:
+ meeting_end = current + meeting_delta
+
+ # Skip lunch start times
+ if LUNCH_START <= current < LUNCH_END:
+ current += delta
+ continue
+
+ overlap = False
+ for event_start, event_end in parsed_events:
+ if current <= event_end and meeting_end > event_start:
+ overlap = True
+ break
+
+ if not overlap:
+ slots.append(current.strftime("%H:%M"))
+
+ current += delta
+
+ return slots
+LLM Response 1: from typing import List, Dict
+from datetime import datetime, timedelta
+
+def suggest_slots(
+ events: List[Dict[str, str]],
+ meeting_duration: int,
+ day: str
+) -> List[str]:
+
+ WORK_START = datetime.strptime("09:00", "%H:%M")
+ WORK_END = datetime.strptime("17:00", "%H:%M")
+ LUNCH_START = datetime.strptime("12:00", "%H:%M")
+ LUNCH_END = datetime.strptime("13:00", "%H:%M")
+ FRIDAY_CUTOFF = datetime.strptime("15:00", "%H:%M")
+
+ # Determine if the given date is Friday
+ date_obj = datetime.strptime(day, "%Y-%m-%d")
+ is_friday = date_obj.weekday() == 4 # Monday=0 ... Friday=4
+
+ # Convert events to datetime ranges
+ parsed_events = []
+ for e in events:
+ start = datetime.strptime(e["start"], "%H:%M")
+ end = datetime.strptime(e["end"], "%H:%M")
+
+ if end <= WORK_START or start >= WORK_END:
+ continue
+
+ parsed_events.append((start, end))
+
+ parsed_events.sort(key=lambda x: x[0])
+
+ slots = []
+ current = WORK_START
+ delta = timedelta(minutes=15)
+ meeting_delta = timedelta(minutes=meeting_duration)
+
+ while current + meeting_delta <= WORK_END:
+ meeting_end = current + meeting_delta
+
+ # Lunch restriction
+ if LUNCH_START <= current < LUNCH_END:
+ current += delta
+ continue
+
+ # Friday restriction
+ if is_friday and current > FRIDAY_CUTOFF:
+ current += delta
+ continue
+
+ overlap = False
+ for event_start, event_end in parsed_events:
+ if current <= event_end and meeting_end > event_start:
+ overlap = True
+ break
+
+ if not overlap:
+ slots.append(current.strftime("%H:%M"))
+
+ current += delta
+
+ return slots
+
+ ------------------------------------------------------------ 
+
+Prompt 2: "I need to implement something from a system description. Can you list down the requirements, asumptions and constraints for that one ? 
+here-# System Description You are asked to implement a Python function that suggests possible meeting time slots for a given day. The function takes as
+input a list of existing calendar events for that day and a desired meeting duration. Its goal is to return a list of valid start times at which the meeting
+could be scheduled. A valid time slot should respect typical working hours and should not conflict with existing events. If no suitable time slots are 
+available, the function should return an empty list. You may assume that time values are provided in a standard string format (e.g., “09:30”),
+and you are free to choose an appropriate internal representation. But now I have a new requirement. here it is-If the selected date falls on a Friday,
+the system shall not include any meeting start time later than 15:00 in the list of suggested slots.”"
+
+LLM Response 2: 
+"
+✅ 1️⃣ Functional Requirements
+
+These describe what the system must do.
+
+FR1 – Suggest Available Time Slots
+
+The system shall return a list of valid meeting start times for the given day.
+
+FR2 – Avoid Conflicts
+
+The system shall exclude any start time that would cause the meeting to overlap with an existing calendar event.
+
+FR3 – Respect Working Hours
+
+The system shall only suggest meeting start times within standard working hours.
+
+FR4 – Respect Meeting Duration
+
+The system shall ensure that the entire meeting duration fits within working hours.
+
+FR5 – Return Empty List if No Availability
+
+If no valid time slots are available, the system shall return an empty list.
+
+FR6 – Friday Restriction (New Requirement)
+
+If the selected date falls on a Friday, the system shall not include any meeting start time later than 15:00 in the list of suggested slots.
+
+✅ 2️⃣ Constraints
+
+Constraints restrict how the system behaves.
+
+C1 – Time Format Constraint
+
+Time values shall be provided in standard string format "HH:MM".
+
+C2 – Working Hours Constraint
+
+Meetings may only be scheduled within predefined working hours (e.g., 09:00–17:00).
+
+C3 – Non-Overlap Constraint
+
+A meeting shall not overlap with any existing event.
+
+C4 – Friday Cutoff Constraint
+
+On Fridays, start times strictly after 15:00 shall be excluded.
+
+C5 – Sorted Output Constraint
+
+Returned time slots shall be sorted in ascending chronological order.
+
+✅ 3️⃣ Assumptions
+
+Assumptions clarify what we are allowed to assume.
+
+A1 – Valid Input Format
+
+All provided time strings are valid and follow the "HH:MM" format.
+
+A2 – Events Occur Within One Day
+
+All events belong to the same calendar day.
+
+A3 – Positive Meeting Duration
+
+Meeting duration is a positive integer representing minutes.
+
+A4 – Standard Weekday Mapping
+
+The system can correctly determine whether a given date is a Friday.
+
+A5 – Fixed Working Hours
+
+Working hours are predefined and consistent for all weekdays unless otherwise specified.
+
+✅ 4️⃣ Edge Conditions to Consider
+
+These are important for testing and correctness.
+
+Meeting starts exactly when an event ends
+
+Meeting ends exactly at closing time
+
+Meeting duration longer than workday
+
+No events on the calendar
+
+Multiple unsorted events
+
+Friday with no events
+
+Friday with events before 15:00
+"
+
+--------------------------------------------------
+Prompt 3: "Now following the new requirements, assumptions and cinstraints, can you help me with the implementation. let me share the code with you. Need to update the suggest_slots function here.
+
+from datetime import datetime, timedelta
+
+def suggest_slots(
+ events: List[Dict[str, str]],
+ meeting_duration: int,
+ day: str
+) -> List[str]:
+
+ WORK_START = datetime.strptime("09:00", "%H:%M")
+ WORK_END = datetime.strptime("17:00", "%H:%M")
+ LUNCH_START = datetime.strptime("12:00", "%H:%M")
+ LUNCH_END = datetime.strptime("13:00", "%H:%M")
+
+ # Convert events to datetime ranges and filter relevant ones
+ parsed_events = []
+ for e in events:
+ start = datetime.strptime(e["start"], "%H:%M")
+ end = datetime.strptime(e["end"], "%H:%M")
+
+ # Ignore events completely outside working hours
+ if end <= WORK_START or start >= WORK_END:
+ continue
+
+ parsed_events.append((start, end))
+
+ # Sort events
+ parsed_events.sort(key=lambda x: x[0])
+
+ slots = []
+ current = WORK_START
+ delta = timedelta(minutes=15)
+ meeting_delta = timedelta(minutes=meeting_duration)
+
+ while current + meeting_delta <= WORK_END:
+ meeting_end = current + meeting_delta
+
+ # Skip lunch start times
+ if LUNCH_START <= current < LUNCH_END:
+ current += delta
+ continue
+
+ overlap = False
+ for event_start, event_end in parsed_events:
+ if current <= event_end and meeting_end > event_start:
+ overlap = True
+ break
+
+ if not overlap:
+ slots.append(current.strftime("%H:%M"))
+
+ current += delta
+
+ return slots "
+
+llm response: " from typing import List, Dict
+from datetime import datetime, timedelta
+
+def suggest_slots(
+ events: List[Dict[str, str]],
+ meeting_duration: int,
+ day: str
+) -> List[str]:
+
+ WORK_START = datetime.strptime("09:00", "%H:%M")
+ WORK_END = datetime.strptime("17:00", "%H:%M")
+ LUNCH_START = datetime.strptime("12:00", "%H:%M")
+ LUNCH_END = datetime.strptime("13:00", "%H:%M")
+ FRIDAY_CUTOFF = datetime.strptime("15:00", "%H:%M")
+
+ # Determine if the given date is Friday
+ date_obj = datetime.strptime(day, "%Y-%m-%d")
+ is_friday = date_obj.weekday() == 4 # Monday=0 ... Friday=4
+
+ # Convert events to datetime ranges
+ parsed_events = []
+ for e in events:
+ start = datetime.strptime(e["start"], "%H:%M")
+ end = datetime.strptime(e["end"], "%H:%M")
+
+ if end <= WORK_START or start >= WORK_END:
+ continue
+
+ parsed_events.append((start, end))
+
+ parsed_events.sort(key=lambda x: x[0])
+
+ slots = []
+ current = WORK_START
+ delta = timedelta(minutes=15)
+ meeting_delta = timedelta(minutes=meeting_duration)
+
+ while current + meeting_delta <= WORK_END:
+ meeting_end = current + meeting_delta
+
+ # Lunch restriction
+ if LUNCH_START <= current < LUNCH_END:
+ current += delta
+ continue
+
+ # Friday restriction
+ if is_friday and current > FRIDAY_CUTOFF:
+ current += delta
+ continue
+
+ overlap = False
+ for event_start, event_end in parsed_events:
+ if current <= event_end and meeting_end > event_start:
+ overlap = True
+ break
+
+ if not overlap:
+ slots.append(current.strftime("%H:%M"))
+
+ current += delta
+
+ return slots"
+
+ ---------------------------------------------------------------------------
+Prompt 4: here is our testcase file. There are some public test cases to test our implementation .read them and we have to add some test cases to check our implementation with new requirement. So, give me some testcases which will help me to test the requirements and assumptions correctly" 
+
+llm response: 
+ "
+
+def test_friday_excludes_start_times_after_1500():
+ """
+ Functional requirement:
+ On Fridays, no meeting may start after 15:00.
+ """
+ events = []
+ slots = suggest_slots(events, meeting_duration=30, day="2026-02-06") # Friday
+
+ assert "15:15" not in slots
+ assert "15:30" not in slots
+ assert "16:00" not in slots
+
+def test_friday_allows_start_time_exactly_1500():
+ """
+ Boundary condition:
+ 15:00 should still be allowed on Friday.
+ """
+ events = []
+ slots = suggest_slots(events, meeting_duration=30, day="2026-02-06") # Friday
+
+ assert "15:00" in slots
+
+def test_non_friday_not_affected_by_cutoff():
+ """
+ Functional requirement:
+ The 15:00 restriction applies only to Fridays.
+ """
+ events = []
+ slots = suggest_slots(events, meeting_duration=30, day="2026-02-05") # Thursday
+
+ assert "15:15" in slots
+ assert "16:00" in slots
+
+def test_friday_with_existing_event_before_cutoff():
+ """
+ Edge case:
+ Event before 15:00 should not interfere with Friday restriction logic.
+ """
+ events = [{"start": "14:00", "end": "14:30"}]
+ slots = suggest_slots(events, meeting_duration=30, day="2026-02-06") # Friday
+
+ assert "14:00" not in slots
+ assert "15:15" not in slots # Still blocked due to Friday rule
+
+def test_friday_long_meeting_crossing_cutoff():
+ """
+ Edge case:
+ Meeting starting before 15:00 but ending after 15:00 is allowed,
+ since restriction applies only to start time.
+ """
+ events = []
+ slots = suggest_slots(events, meeting_duration=120, day="2026-02-06") # Friday
+
+ assert "14:00" in slots # 14:00–16:00 allowed
+ assert "15:15" not in slots
+ "

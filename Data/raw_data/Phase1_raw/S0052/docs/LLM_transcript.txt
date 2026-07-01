@@ -1,0 +1,215 @@
+Prompt 1:
+
+# Is Resource Allocation Feasible Lab Repository
+
+This repository contains the starter code, templates, and tests for the **Requirements Specification II** lab. Students will implement a function to determine the feasibility of resource allocation, write specifications, and explore the impact of requirements completeness on AI-assisted coding.
+
+(System description and structure...)
+
+You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity.
+
+LLM Response 1:
+
+Provided a basic implementation assuming:
+
+Single total resource capacity
+
+Feasible if sum(requests) ≤ resources
+
+Included example student tests
+
+Mentioned possibility of more advanced interpretations (multiple resource types)
+--------------------------------------------------
+Prompt 2:
+solution.py
+(Stub with Dict[str, Number] resources and List[Dict[str, Number]] requests)
+
+testsolution.py
+(Public tests including multi-resource checks, missing resource, structural validation, etc.)
+
+LLM Response 2:
+
+Provided a complete implementation that:
+
+Aggregates resource usage per resource type
+
+Ensures total per resource ≤ capacity
+
+Returns False if:
+
+A request references a missing resource
+
+A request contains negative values
+
+Raises ValueError if:
+
+A request is not a dictionary
+
+Resource amounts are non-numeric
+
+Supports float and int values
+
+Added 5 additional student test cases
+
+Full implementation:
+
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+
+ if not isinstance(resources, dict):
+ raise ValueError("Resources must be a dictionary.")
+
+ total_usage: Dict[str, Number] = {r: 0 for r in resources}
+
+ for request in requests:
+ if not isinstance(request, dict):
+ raise ValueError("Each request must be a dictionary.")
+
+ for resource_name, amount in request.items():
+ if resource_name not in resources:
+ return False
+
+ if not isinstance(amount, (int, float)):
+ raise ValueError("Resource amounts must be numeric.")
+
+ if amount < 0:
+ return False
+
+ total_usage[resource_name] += amount
+
+ for resource_name, used in total_usage.items():
+ if used > resources[resource_name]:
+ return False
+
+ return True
+
+🧪 Example Student Tests (student_tests.py)
+
+You need at least 5 tests. Here are solid ones:
+
+from src.solution import is_allocation_feasible
+
+def test_exact_match():
+ assert is_allocation_feasible([2, 3, 5], 10) is True
+
+def test_less_than_available():
+ assert is_allocation_feasible([1, 2, 3], 10) is True
+
+def test_exceeds_available():
+ assert is_allocation_feasible([4, 5, 6], 10) is False
+
+def test_empty_requests():
+ assert is_allocation_feasible([], 5) is True
+
+def test_zero_resources():
+ assert is_allocation_feasible([1], 0) is False
+
+--------------------------------------------------
+Prompt 3:
+Describe in 1 2 sentences the objective of the system
+
+LLM Response 3:
+The objective of the system is to determine whether a set of resource requests can be satisfied given limited resource capacities. It verifies that total requested amounts for each resource do not exceed available capacity while ensuring all constraints are satisfied.
+--------------------------------------------------
+
+Prompt 4:
+Describe each input parameter. What type and format does each take and what values are valid
+
+LLM Response 4:
+The function takes two input parameters.
+
+resources: Type Dict[str, Number]. It is a dictionary mapping resource names (strings) to their total available capacity (non-negative integers or floats). Example: {'cpu': 10, 'mem': 32}.
+
+requests: Type List[Dict[str, Number]]. It is a list of dictionaries where each dictionary represents a request mapping resource names to required amounts (non-negative integers or floats). Each referenced resource must exist in resources. Example: [{'cpu': 2, 'mem': 8}, {'cpu': 3, 'mem': 10}].
+--------------------------------------------------
+
+Prompt 5:
+Describe what the function returns
+
+LLM Response 5:
+The function returns a Boolean value (True or False). It returns True if the total requested amount for every resource does not exceed its available capacity and all constraints are satisfied; otherwise, it returns False.
+--------------------------------------------------
+
+Prompt 6:
+List as many functional requirements from specification description
+
+LLM Response 6:
+
+The system shall accept a dictionary of available resources.
+
+The system shall accept a list of request dictionaries.
+
+The system shall validate that each request is a dictionary.
+
+The system shall ensure all resource capacities are numeric and non-negative.
+
+The system shall ensure all requested amounts are numeric and non-negative.
+
+The system shall verify that each requested resource exists in the resources dictionary.
+
+The system shall aggregate total requested amounts per resource.
+
+The system shall compare total requested amounts against available capacities.
+
+The system shall return False if any resource exceeds capacity.
+
+The system shall return False if a request references a missing resource.
+
+The system shall return True only if all resource constraints are satisfied.
+
+The system shall not modify the input parameters.
+--------------------------------------------------
+
+Prompt 7:
+List 6 constraints and assumptions relevant to the problem
+
+LLM Response 7:
+Constraints:
+
+All resource capacities must be non-negative numeric values.
+
+All requested amounts must be non-negative numeric values.
+
+A request must reference only resources defined in the resources dictionary.
+
+Assumptions:
+
+Resources are independent; surplus from one cannot compensate for shortage in another.
+
+The allocation is static and evaluated at a single point in time.
+
+Inputs are provided in a consistent and valid structural format.
+--------------------------------------------------
+Prompt 8:
+List 3 invariants that must always hold
+
+LLM Response 8:
+
+The accumulated usage for each resource is tracked independently and corresponds to a valid resource key in the resources dictionary.
+
+All processed request amounts remain numeric and non-negative.
+
+The function only returns True if, for every resource, total requested usage is less than or equal to its available capacity.
+--------------------------------------------------
+
+Prompt 9:
+2 negative requirements (that shouldn’t occur)
+
+LLM Response 9:
+
+The system shall not return True if any resource’s total requested amount exceeds its available capacity.
+
+The system shall not accept requests that reference resources not defined in the resources dictionary.
+--------------------------------------------------
+
+Prompt 10:
+Explain how the system should choose between multiple feasible scenarios. If two scenarios satisfy the same constraints, which one is prioritized
+
+LLM Response 10:
+The system does not choose between multiple feasible scenarios; it only evaluates a single proposed allocation and determines whether it is feasible. If multiple scenarios were provided, a prioritization rule would need to be explicitly defined in the specification; otherwise, no scenario should be arbitrarily preferred.

@@ -1,0 +1,94 @@
+Prompt 1: Help me develop this:
+
+ System Description: "You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. You may use ChatGPT to assist with reasoning about the problem, generating code, or writing tests."
+
+ Function signature: "def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+ ) -> bool" 
+
+ For the development, consider the following information:
+
+ System Goal: Determine whether all requests can be satisfied given linked available resources
+
+ Inputs: Request: Resource demands that must be satisfied. Available Resources: capacities for each resource type
+
+ Outputs: Boolean. True if all available allocations exist. False otherwise
+
+ Functional requirements: [{'fr_1': 'Determine if all requests can be satisfied', 'fr_10': '', 'fr_2': 'Return True if feasible, False otherwise', 'fr_3': 'Evaluate all requests together', 'fr_4': '', 'fr_5': '', 'fr_6': '', 'fr_7': '', 'fr_8': '', 'fr_9': ''}]
+
+ Constraints: [{'c_1': "Resource type's available capacity", 'c_2': 'Each request uses exactly one valid option', 'c_3': 'No partial request satisfaction', 'c_4': 'Only existing resource types must be used', 'c_5': 'Resource capacities are non-negative', 'c_6': "Return False if any request can't be satisfied"}]
+
+ Invariants: [{'inv_1': 'Total allocated amount of any resource never exceeds its available capacity', 'inv_2': 'Every request is either fully satisfied by one valid option or allocations is infeasible', 'inv_3': 'Allocations only use resource types that exist in the available resources list'}]
+
+ Negative requirements: [{'neg_req_1': "The system must not mark feasible if any request can't be satisfied under the capacities", 'neg_req_2': "The system must not allocate a negative amount or allocate resources that don't exist"}]
+
+ Tie breaking rule: The function only returns feasibility (true/false) and does not choose between feasible allocations; tie-breaking N/A
+
+ Exception: No additional exceptions or specific rules beyond the provided specification
+LLM Response 1: from typing import Dict, List, Union
+import math
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ # Type checks
+ if not isinstance(resources, dict):
+ raise TypeError("Resources must be a dictionary")
+ if not isinstance(requests, list):
+ raise TypeError("Requests must be a list")
+ if resources is None:
+ raise TypeError("Resources cannot be None")
+ if requests is None:
+ raise TypeError("Requests cannot be None")
+ if len(resources) == 0:
+ if len(requests) == 0:
+ raise ValueError("Empty resources with empty requests is invalid")
+ raise ValueError("Resource dictionary cannot be empty")
+
+ # Validate resource keys and values
+ for key, val in resources.items():
+ if not isinstance(key, str):
+ raise TypeError("Resource keys must be strings")
+ if not isinstance(val, (int, float)) or isinstance(val, bool):
+ raise TypeError("Resource values must be numbers")
+ if val < 0 or math.isnan(val) or math.isinf(val):
+ raise ValueError("Resource values must be non-negative finite numbers")
+
+ # Initialize total request tracker
+ total_request = {res: 0 for res in resources}
+
+ # Validate requests
+ for req in requests:
+ if not isinstance(req, dict):
+ raise TypeError("Each request must be a dictionary")
+ for key, val in req.items():
+ if not isinstance(key, str):
+ raise TypeError("Request keys must be strings")
+ if key not in resources:
+ raise ValueError(f"Request uses unknown resource type: {key}")
+ if not isinstance(val, (int, float)) or isinstance(val, bool):
+ raise TypeError("Request values must be numbers")
+ if val < 0 or math.isnan(val) or math.isinf(val):
+ raise ValueError("Request values must be non-negative finite numbers")
+ total_request[key] += val
+
+ # Check total request against available resources
+ for res, total in total_request.items():
+ if total > resources[res]:
+ return False
+
+ return True
+
+ ------------------------------------------------------------ 
+
+Prompt 2: help me implement is_allocation_feasible
+LLM Response 2: <response>
+------------------------------------------------------------ 
+Prompt 3: why are tests failing
+LLM Response 3: <response>
+
+...

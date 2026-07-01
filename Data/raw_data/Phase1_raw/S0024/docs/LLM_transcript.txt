@@ -1,0 +1,167 @@
+## Student Name: Mahnsi Ruparelia
+## Student ID: 219107457
+
+(GPT-5.2)
+Prompt 1: "write three more test cases for 'is_allocation_feasible' that are comprehensive, not redundant, or check for edge cases"
+(attatched: solution.py and test_solution.py)
+
+LLM Response 1: 
+Your current tests are mostly checking *per-request* constraints. The hidden trap here is global aggregation. If three requests each ask for 4 CPUs and you only have 10 total, the allocation is infeasible — even though no single request exceeds capacity.
+
+That’s the classic “locally valid, globally impossible” bug. Your current implementation would incorrectly return `True` in that case.
+
+Here are three strong, non-redundant tests that probe edge cases and deeper correctness:
+
+```python
+def test_total_aggregate_exceeds_capacity():
+ # Aggregate Exceeds Capacity
+ # Constraint: total demand across all requests must not exceed total capacity
+ # Reason: catches implementations that only check per-request limits
+ resources = {'cpu': 10}
+ requests = [{'cpu': 4}, {'cpu': 4}, {'cpu': 4}] # total = 12 > 10
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_multi_resource_aggregate_exceeds_one_dimension():
+ # Multi-Resource Aggregate Overload (single dimension)
+ # Constraint: total demand per resource must be respected independently
+ # Reason: ensure aggregation happens per-resource, not per-request
+ resources = {'cpu': 10, 'mem': 20}
+ requests = [
+ {'cpu': 3, 'mem': 10},
+ {'cpu': 3, 'mem': 5},
+ {'cpu': 3, 'mem': 6} # mem total = 21 > 20
+ ]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_request_with_unmentioned_resource_defaults_to_zero():
+ # Partial Resource Usage
+ # Constraint: resources not mentioned in a request are treated as 0
+ # Reason: ensure function does not incorrectly require all resources per request
+ resources = {'cpu': 5, 'mem': 10}
+ requests = [
+ {'cpu': 3},
+ {'mem': 8}
+ ]
+ assert is_allocation_feasible(resources, requests) is True
+```
+
+Why these matter:
+
+* The first two expose the conceptual flaw in your current implementation (it does not aggregate usage).
+* The third checks correctness without being redundant — it verifies that sparse requests behave properly.
+
+If you run these against your current function, at least the first two will fail. That’s not bad news — it means your tests are doing their job. A test suite that can’t break your code isn’t a test suite, it’s a cheerleader.
+
+This is a neat microcosm of distributed systems resource accounting: local checks are easy; global invariants are where correctness lives.
+
+--------------------------------------------------
+(GPT-5.2)
+Prompt 2: "is there any additional ones you think may be important for coverage? only say yes if necassary "
+LLM Response 2: 
+Yes — one category is still uncovered, and it matters if you want true robustness rather than just “passes the happy path.”
+
+You don’t currently test **invalid numeric values**.
+
+Right now your function silently accepts negative numbers. That creates logical nonsense like:
+
+* A request asking for `-3` CPUs.
+* A resource capacity of `-10`.
+
+From a modeling standpoint, that’s equivalent to saying someone is *producing* CPU by requesting it. That’s thermodynamics crying softly in the corner.
+
+If your spec assumes non-negative quantities (which almost all allocation models do), you should test that negative values either:
+
+1. Raise an error, or
+2. Cause infeasibility.
+
+Example test:
+
+```python
+def test_negative_request_amount():
+ # Negative Request Amount
+ # Constraint: resource demands must be non-negative
+ # Reason: prevent logically invalid allocations
+ resources = {'cpu': 10}
+ requests = [{'cpu': -3}]
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+```
+
+You might also consider negative capacities:
+
+```python
+def test_negative_resource_capacity():
+ # Negative Resource Capacity
+ # Constraint: available resources must be non-negative
+ # Reason: invalid system state should not be treated as feasible
+ resources = {'cpu': -5}
+ requests = [{'cpu': 1}]
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+```
+
+Whether you enforce this depends on the lab specification — but if the model represents real resources, non-negativity is part of the mathematical contract.
+
+Beyond that, your coverage is conceptually solid once aggregation is tested. The only remaining frontier would be floating-point edge cases (e.g., 0.1 + 0.2 precision issues), but that’s rarely required unless the assignment explicitly mentions floats.
+
+The deeper lesson: coverage isn’t about quantity of tests. It’s about attacking invariants. Resource allocation has three invariants:
+
+* Structural validity
+* Non-negativity
+* Global capacity constraints
+
+Break those, and your model becomes science fiction instead of accounting.
+
+--------------------------------------------------
+(Sonnet 4.6)
+Prompt 3: "check for redundancy in the test cases. and check if theres something im not covering"
+(attatched: solution.py and updated test_solution.py)
+
+LLM Response 3: 
+Looking at your test cases, here's my analysis:
+
+**Redundancies:**
+
+`test_multi_resource_infeasible_one_overloaded` and `test_multi_resource_aggregate_exceeds_one_dimension` are testing essentially the same thing — aggregate overflow in one resource dimension across multiple requests. The first one does it with 3 resources summing over the `mem` limit (32 > 30), and the third custom test does the same with `mem` (21 > 20). You can keep one but they're not meaningfully distinct.
+
+Similarly, `test_total_aggregate_exceeds_capacity` and `test_multi_resource_aggregate_exceeds_one_dimension` are both just "sum exceeds capacity" — one with a single resource, one with two. The single-resource version is redundant given you already have the multi-resource version.
+
+**Gaps / things you're not covering:**
+
+- **Zero-amount request** — what happens with `{'cpu': 0}`? Should be feasible, but worth explicitly testing.
+- **Exact capacity match** — e.g. total demand == capacity exactly. Your feasible test has `3+4+3 == 10` which actually does cover this, but it's not labeled clearly. Worth having an explicit boundary test.
+- **Float amounts** — your type hint allows `float`, but none of your tests use floats. Something like `{'cpu': 3.5}` against `{'cpu': 7.0}` is untested.
+- **Empty resources dict with empty requests** — edge case: `resources = {}`, `requests = []` should return `True`.
+- **Empty resources dict with non-empty requests** — `resources = {}`, `requests = [{'cpu': 1}]` should return `False` (missing resource).
+- **Request with all zero amounts across multiple resources** — should be feasible and not consume capacity.
+- **Non-numeric amount in request** — e.g. `{'cpu': 'five'}` should raise `ValueError`, which your validation code handles but isn't tested.
+
+The most impactful missing cases are the **float inputs** and the **exact boundary match** (explicitly labeled), since those test the numeric type handling and boundary condition your implementation is most likely to get wrong in a graded hidden suite.
+
+--------------------------------------------------
+(Sonnet 4.6)
+Prompt 4: write two new test cases to replace the two redundant ones
+LLM Response 4: 
+Looking at your redundancies, I'll replace:
+1. `test_multi_resource_infeasible_one_overloaded` (redundant with `test_multi_resource_aggregate_exceeds_one_dimension`)
+2. `test_total_aggregate_exceeds_capacity` (redundant with `test_multi_resource_aggregate_exceeds_one_dimension`)
+
+```python
+def test_float_amounts_feasible():
+ # Float Resource Amounts
+ # Constraint: Number type includes floats, not just ints
+ # Reason: ensure float demands are handled correctly and don't cause type errors
+ resources = {'cpu': 7.0, 'mem': 10.5}
+ requests = [{'cpu': 3.5, 'mem': 4.0}, {'cpu': 3.5, 'mem': 6.5}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_exact_capacity_boundary():
+ # Exact Capacity Match (Boundary)
+ # Constraint: total demand == total capacity should be feasible
+ # Reason: ensure boundary condition is treated as valid, not incorrectly rejected
+ resources = {'cpu': 9, 'mem': 15}
+ requests = [{'cpu': 4, 'mem': 7}, {'cpu': 5, 'mem': 8}]
+ assert is_allocation_feasible(resources, requests) is True
+```
+
+The float test targets your `isinstance(amount, (int, float))` branch in a way none of your existing tests do, and the boundary test explicitly confirms that `==` capacity is accepted — catching any off-by-one errors where someone mistakenly uses `<` instead of `<=` when checking availability.

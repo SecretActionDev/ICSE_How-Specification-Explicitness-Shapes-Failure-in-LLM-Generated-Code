@@ -1,0 +1,455 @@
+## Student Name: Mohammad Mustafidur Rahman
+## Student ID: 220081014
+
+Prompt 1: "Github not cloning on my machine at VSCode"
+LLM Response 1: "Got it. In VS Code, “can’t clone” is almost always one of these: Git isn’t installed / VS Code can’t find it, auth issue (private repo / token), SSH key issue, or network/DNS/proxy.
+
+Here’s the fastest way to diagnose + fix on a Mac (works for Windows/Linux too, but Mac steps included).
+
+1) Confirm Git works on your machine
+
+Open VS Code → Terminal and run:
+
+git --version
+
+If you get “command not found” (or it prompts to install):
+
+Install Apple command line tools:
+
+xcode-select --install
+
+or if you use Homebrew:
+
+brew install git
+
+Then restart VS Code and re-check git --version.
+
+2) Try cloning in the VS Code terminal (this reveals the real error)
+
+Copy the repo URL from GitHub and run:
+
+git clone <PASTE_REPO_URL_HERE>
+
+Now match your error to the fix below.
+
+3) Fix based on the exact error
+A) “Repository not found”
+
+Usually one of:
+
+URL is wrong (typo, missing .git, wrong owner/repo)
+
+Repo is private and you’re not authenticated / no access
+
+Fix:
+
+Open the repo in browser while logged in—if you can’t view it, you can’t clone it.
+
+If it’s private, authenticate (see Auth section below).
+
+B) “Authentication failed” / asks password and fails (HTTPS)
+
+GitHub does not accept account passwords for HTTPS Git anymore—use a Personal Access Token (PAT).
+
+Best quick fix inside VS Code:
+
+In VS Code: Cmd+Shift+P → “GitHub: Sign in” (or Accounts icon bottom-left)
+
+Try clone again.
+
+If still failing, force a clean credential reset (Mac Keychain can keep bad creds):
+
+git credential-osxkeychain erase
+host=github.com
+protocol=https
+<press Enter twice>
+
+Then try clone again and sign in when prompted.
+
+Alternative (super clean): use GitHub CLI
+
+brew install gh
+gh auth login
+git clone <url>
+
+C) “Permission denied (publickey)” (SSH clone)
+
+You’re using the SSH URL (git@github.com:...) but your machine doesn’t have a working SSH key set up.
+
+Check:
+
+ssh -T git@github.com
+
+If it fails, create + add a key:
+
+ssh-keygen -t ed25519 -C "your_email@example.com"
+eval "$(ssh-agent -s)"
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+pbcopy < ~/.ssh/id_ed25519.pub
+
+Then paste that key into GitHub:
+GitHub → Settings → SSH and GPG keys → New SSH key
+
+Re-test ssh -T git@github.com, then clone again.
+
+D) “Could not resolve host github.com” / timeout / network errors
+
+This is DNS / proxy / firewall.
+
+Quick checks:
+
+ping -c 1 github.com
+nslookup github.com
+
+If you’re on school/work Wi-Fi, try:
+
+Different network / hotspot
+
+Use SSH instead of HTTPS (or vice versa)
+
+If you’re behind a proxy, Git needs proxy config (common in corporate networks)
+
+E) VS Code can’t “see” git (Git: Path issue)
+
+If terminal git --version works but VS Code UI clone fails:
+
+VS Code settings: search “Git: Path”
+
+Set it to your git path:
+
+which git
+
+Put that full path into Git: Path.
+
+4) The quickest “just make it work” method
+
+If you don’t care SSH vs HTTPS, do this:
+
+Sign into GitHub in VS Code (Accounts menu)
+
+Use Command Palette → “Git: Clone”
+
+Paste the HTTPS URL
+
+Send me the exact error text
+
+Paste the exact error message you see (and tell me if you’re cloning with HTTPS or SSH URL). I’ll pinpoint the single fix in one shot."
+
+--------------------------------------------------
+Prompt 2: "Tried HTTPS and SSH but not working, maybe Token?"
+LLM Response 2: "## Student Name:
+## Student ID:
+
+"""
+Stub file for the is allocation feasible exercise.
+
+Implement the function is_allocation_feasible to Determine whether a set of resource requests can be satisfied
+given limited capacities. Take int account any possible constraints. See the lab handout
+for full requirements.
+"""
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+resources: Dict[str, Number],
+requests: List[Dict[str, Number]]
+) -> bool:
+"""
+Determine whether a set of resource requests can be satisfied given limited capacities.
+
+Args:
+resources : Dict[str, Number], Mapping from resource name to total available capacity.
+requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+Returns:
+True if the allocation is feasible, False otherwise.
+
+"""
+# TODO: Implement this function
+raise NotImplementedError("suggest_slots function has not been implemented yet")
+
+Don't give me the solution!!!
+
+answer me this:
+raise NotImplementedError("suggest_slots function has not been implemented yet")
+
+do i have to remove this after writing the code?
+
+How should the is_allocation_feasible function handle cases where a resource value is passed as a float versus an integer to ensure precision?
+
+Can you generate a pytest case that checks the 'Exact Boundary' condition, where the total demand is exactly equal to the capacity? Give me 1 additional test case
+
+## Student Name: Mohammad Mustafidur Rahman
+
+## Student ID: 220081014
+
+"""
+Public test suite for the meeting slot suggestion exercise.
+
+Students can run these tests locally to check basic correctness of their implementation.
+The hidden test suite used for grading contains additional edge cases and will not be
+available to students.
+"""
+from solution import is_allocation_feasible
+import pytest
+
+def test_basic_feasible_single_resource():
+ # Basic Feasible Single-Resource
+ # Constraint: total demand <= capacity
+ # Reason: check basic functional requirement
+ resources = {'cpu': 10}
+ requests = [{'cpu': 3}, {'cpu': 4}, {'cpu': 3}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_multi_resource_infeasible_one_overloaded():
+ # Multi-Resource Infeasible (one overload)
+ # Constraint: one resource exceeds capacity
+ # Reason: check detection of per-resource infeasibility
+ resources = {'cpu': 8, 'mem': 30}
+ requests = [{'cpu': 2, 'mem': 8}, {'cpu': 3, 'mem': 10}, {'cpu': 3, 'mem': 14}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_missing_resource_in_availability():
+ # Missing Resource in Requests
+ # Constraint: request references unavailable resource
+ # Reason: allocation must be infeasible
+ resources = {'cpu': 10}
+ requests = [{'cpu': 2}, {'gpu': 1}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_non_dict_request_raises():
+ # Non-Dict Request Raises Error
+ # Constraint: structural validation
+ # Reason: request must be a dict
+ resources = {'cpu': 5}
+ requests = [{'cpu': 2}, ['mem', 1]] # malformed request
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+(base) naimrahman@Naims-MacBook-Air EECS4312_Lab5_SpecificationLab_B_220081014 % pytest tests/test_solution.py
+====================================== test session starts =======================================
+platform darwin -- Python 3.13.9, pytest-8.4.2, pluggy-1.5.0
+rootdir: /Users/naimrahman/Documents/VSCode/EECS4312_Lab5_SpecificationLab_B_220081014
+plugins: anyio-4.10.0
+collected 0 items / 1 error 
+
+============================================= ERRORS =============================================
+____________________________ ERROR collecting tests/test_solution.py _____________________________
+ImportError while importing test module '/Users/naimrahman/Documents/VSCode/EECS4312_Lab5_SpecificationLab_B_220081014/tests/test_solution.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/anaconda3/lib/python3.13/importlib/__init__.py:88: in import_module
+ return _bootstrap._gcd_import(name[level:], package, level)
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_solution.py:11: in <module>
+ from solution import is_allocation_feasible
+E ModuleNotFoundError: No module named 'solution'
+==================================== short test summary info =====================================
+ERROR tests/test_solution.py
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+======================================== 1 error in 0.09s ========================================
+
+I am getting this error while running the test
+I need a test case that validates structural integrity: if a request is passed as a list instead of a dictionary, how do I ensure the function raises a ValueError?"
+--------------------------------------------------
+
+--------------------------------------------------
+Prompt 3: "# TODO: Implement this function raise NotImplementedError("suggest_slots function has not been implemented yet") Don't give me the solution!!! answer me this: raise NotImplementedError("suggest_slots function has not been implemented yet") do i have to remove this after writing the code?"
+LLM Response 3: "Yes — you must remove or replace that line once you implement the function.
+
+raise NotImplementedError(...) is there as a placeholder. If it stays, Python will always stop at that line and your function will always fail, even if you wrote correct code above it.
+
+What you do instead:
+
+Delete that raise ... line (and the # TODO comment if you want), and
+
+Put your actual implementation in its place."
+--------------------------------------------------
+
+--------------------------------------------------
+Prompt 4: "How should the is_allocation_feasible function handle cases where a resource value is passed as a float versus an integer?"
+LLM Response 4: "To avoid “float surprise” (like 0.1 + 0.2 becoming 0.30000000000000004), is_allocation_feasible should use a consistent numeric strategy internally. Integers are exact; floats are not. You’ve got two good options:
+
+Option 1 (most common in labs): floats + tolerance
+
+If inputs may be floats, treat all computations as floating-point but compare with a small epsilon:
+
+Sum with math.fsum (more accurate than sum for floats).
+
+When you check feasibility, do:
+
+total_required <= capacity + eps
+
+Typical eps values: 1e-9 or 1e-12 (depends on how strict the lab is).
+
+Why this works:
+
+It prevents rejecting an allocation just because of tiny rounding noise.
+
+When to use:
+
+The lab expects normal float handling and doesn’t demand exact decimal arithmetic.
+
+Option 2 (highest precision): Decimal (exact decimal math)
+
+If the lab is strict about exact decimal values (money-like numbers), convert everything to Decimal and do all math in Decimal:
+
+Key detail:
+
+Convert using Decimal(str(x)) (not Decimal(x)) to avoid importing the float’s binary error.
+
+Why this works:
+
+Decimal arithmetic matches human “base-10” expectations exactly.
+
+When to use:
+
+Tests use decimal-style values and expect exact comparisons without eps hacks.
+
+Practical rule of thumb
+
+If you see test data like 0.1, 0.2, 1.5 and they care about precision → Decimal is safest.
+
+If it’s general resources (units, time, capacity) and they just don’t want rounding bugs → fsum + epsilon is usually what instructors expect.
+
+If you tell me what kind of numbers your lab uses (e.g., money with 2 decimals vs arbitrary floats), I can recommend which approach is most likely to pass the tests—without giving you the full solution."
+--------------------------------------------------
+
+--------------------------------------------------
+Prompt 5: "Can you generate a pytest case that checks the 'Exact Boundary' condition, where the total demand is exactly equal to the capacity? Give me 1 additional test case ## Student Name: Mohammad Mustafidur Rahman ## Student ID: 220081014 """ Public test suite for the meeting slot suggestion exercise. Students can run these tests locally to check basic correctness of their implementation. The hidden test suite used for grading contains additional edge cases and will not be available to students. """ from solution import is_allocation_feasible import pytest def test_basic_feasible_single_resource(): # Basic Feasible Single-Resource # Constraint: total demand <= capacity # Reason: check basic functional requirement resources = {'cpu': 10} requests = [{'cpu': 3}, {'cpu': 4}, {'cpu': 3}] assert is_allocation_feasible(resources, requests) is True def test_multi_resource_infeasible_one_overloaded(): # Multi-Resource Infeasible (one overload) # Constraint: one resource exceeds capacity # Reason: check detection of per-resource infeasibility resources = {'cpu': 8, 'mem': 30} requests = [{'cpu': 2, 'mem': 8}, {'cpu': 3, 'mem': 10}, {'cpu': 3, 'mem': 14}] assert is_allocation_feasible(resources, requests) is False def test_missing_resource_in_availability(): # Missing Resource in Requests # Constraint: request references unavailable resource # Reason: allocation must be infeasible resources = {'cpu': 10} requests = [{'cpu': 2}, {'gpu': 1}] assert is_allocation_feasible(resources, requests) is False def test_non_dict_request_raises(): # Non-Dict Request Raises Error # Constraint: structural validation # Reason: request must be a dict resources = {'cpu': 5} requests = [{'cpu': 2}, ['mem', 1]] # malformed request with pytest.raises(ValueError): is_allocation_feasible(resources, requests)"
+LLM Response 5: "Here are two pytest test cases you can paste under your existing tests:
+
+Exact Boundary: total demand is exactly equal to capacity → should be feasible.
+
+Additional: empty requests (no demand) → should be feasible if resources are non-negative.
+
+def test_exact_boundary_total_equals_capacity():
+ # Exact Boundary Condition
+ # Constraint: total demand == capacity
+ # Reason: must be feasible when exactly at the limit
+ resources = {'cpu': 10, 'mem': 16}
+ requests = [
+ {'cpu': 4, 'mem': 6},
+ {'cpu': 3, 'mem': 5},
+ {'cpu': 3, 'mem': 5},
+ ]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_empty_requests_is_feasible():
+ # Empty Requests
+ # Constraint: no demand at all
+ # Reason: should be feasible (nothing to allocate)
+ resources = {'cpu': 10, 'mem': 16}
+ requests = []
+ assert is_allocation_feasible(resources, requests) is True
+
+If your lab spec says empty requests should raise an error instead (some do), tell me and I’ll swap that second case to a different “safe” edge case."
+--------------------------------------------------
+
+--------------------------------------------------
+Prompt 6: "(base) naimrahman@Naims-MacBook-Air EECS4312_Lab5_SpecificationLab_B_220081014 % pytest tests/test_solution.py ====================================== test session starts ======================================= platform darwin -- Python 3.13.9, pytest-8.4.2, pluggy-1.5.0 rootdir: /Users/naimrahman/Documents/VSCode/EECS4312_Lab5_SpecificationLab_B_220081014 plugins: anyio-4.10.0 collected 0 items / 1 error ============================================= ERRORS ============================================= ____________________________ ERROR collecting tests/test_solution.py _____________________________ ImportError while importing test module '/Users/naimrahman/Documents/VSCode/EECS4312_Lab5_SpecificationLab_B_220081014/tests/test_solution.py'. Hint: make sure your test modules/packages have valid Python names. Traceback: /opt/anaconda3/lib/python3.13/importlib/__init__.py:88: in import_module return _bootstrap._gcd_import(name[level:], package, level) ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ tests/test_solution.py:11: in <module> from solution import is_allocation_feasible E ModuleNotFoundError: No module named 'solution' ==================================== short test summary info ===================================== ERROR tests/test_solution.py !!!!!!!!!!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!!!!!!!!!! ======================================== 1 error in 0.09s ======================================== I am getting this error while running the test"
+LLM Response 6: "That error means pytest can’t import a module named solution from your project root.
+
+So either:
+
+your file isn’t named solution.py, or
+
+it’s not in the project root, or
+
+you’re running pytest from a directory where the root isn’t on Python’s import path.
+
+Here are the clean fixes (pick the one that matches your setup):
+
+Fix 1 (most common): Make sure you actually have solution.py at the project root
+
+From your project root (the rootdir shown in pytest output), run:
+
+ls
+
+You should see something like:
+
+solution.py
+
+tests/
+
+If your file is named something else (e.g., stub.py, allocation.py, .py), then either:
+
+Option A: Rename it to solution.py
+mv <your_file_name>.py solution.py
+
+Option B: Update the import in tests/test_solution.py
+
+Change:
+
+from solution import is_allocation_feasible
+
+to:
+
+from <your_file_name> import is_allocation_feasible
+
+Fix 2: Your solution.py is inside a folder (not root)
+
+Example: src/solution.py
+
+Then change the test import to:
+
+from src.solution import is_allocation_feasible
+
+(Only if src is a package; otherwise you need Fix 3 or make it a package.)
+
+Fix 3 (robust): Add project root to sys.path inside the test
+
+At the top of tests/test_solution.py, add:
+
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+Then keep:
+
+from solution import is_allocation_feasible
+
+This forces Python to look in the project root for solution.py.
+
+Fix 4: Run pytest the “right way” from the root
+
+Make sure you’re in the same folder as tests/ and solution.py, then run:
+
+python -m pytest -q
+
+This often fixes import path issues compared to running pytest ... directly.
+
+Quick diagnostic (do this now)
+
+Run these two commands and paste the output:
+
+pwd
+ls -la
+
+I’ll tell you exactly which fix applies based on what files you actually have."
+--------------------------------------------------
+
+--------------------------------------------------
+Prompt 7: I need a test case that validates structural integrity: if a request is passed as a list instead of a dictionary, how do I ensure the function raises a ValueError?
+LLM Response 7: Use pytest.raises(ValueError) around a call where one of the requests is a list (not a dict). That’s exactly how you validate “structural integrity”.
+Here’s a clean test you can add:
+import pytest
+from solution import is_allocation_feasible
+
+def test_request_as_list_raises_value_error():
+ # Structural Integrity: request must be a dict
+ resources = {'cpu': 5, 'mem': 10}
+ requests = [{'cpu': 2}, ['mem', 1]] # malformed request (list instead of dict)
+
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+
+If you want to be even stricter (optional), you can check the error message too:
+def test_request_as_list_raises_value_error_message():
+ resources = {'cpu': 5}
+ requests = [['cpu', 1]] # malformed
+
+ with pytest.raises(ValueError, match="request.*dict"):
+ is_allocation_feasible(resources, requests)
+
+This passes only if your function raises ValueError and the message mentions that a request must be a dict.
+--------------------------------------------------

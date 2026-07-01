@@ -1,0 +1,8 @@
+{
+  "prompts": [
+    {
+      "id": 1,
+      "text": "Error while running tests\nLLM Response 1: f anything fails, it usually means your lab handout’s rules differ from these assumptions (common differences):\n\nslot step is 15 minutes, not 30\n\nwork hours differ (e.g., 8–6 or includes lunch break)\n\nevents are treated as closed intervals ([start,end] instead of [start,end))"
+    }
+  ]
+}

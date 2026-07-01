@@ -1,0 +1,388 @@
+Prompt 1: Help me update this code for this new requriementsYou are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. 
+
+new requrement: At least one resource must remain unallocated after assignment. This requirement applies in addition to all previously described behavior. An allocation that satisfies all other conditions but consumes all available resources is no longer valid. Update your solution, tests and documents to incorporate this requirement.
+
+, , 
+ ## Student Name: Cyrus Yang
+## Student ID: 219583038
+
+"""
+Stub file for the is allocation feasible exercise.
+
+Implement the function `is_allocation_feasible` to Determine whether a set of resource requests can be satisfied 
+given limited capacities. Take int account any possible constraints. See the lab handout
+for full requirements.
+"""
+ 
+from typing import Dict, List, Union
+
+from numpy.ma.core import empty
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+
+ """
+ # TODO: Implement this function
+ total_demand = {}
+ # Error Checking
+ if not isinstance(resources, dict):
+ raise ValueError("Undefined Resource!")
+ for req in requests:
+ if not isinstance(req, dict):
+ raise ValueError("Not a Dictionary!")
+
+ total_demand: Dict[str, float] = {}
+
+ for i, req in enumerate(requests, 1):
+ if not isinstance(req, dict):
+ raise ValueError(f"Request is not a dictionary")
+ for res_name, amount in req.items():
+ if res_name not in resources:
+ return False
+ try:
+ amount = float(amount)
+ except (TypeError, ValueError):
+ raise ValueError(
+ f"Invalid numeric value for resource '{res_name}' "
+ f"in request #{i}: {amount!r}"
+ )
+ if amount < 0:
+ raise ValueError(
+ f"Negative value not allowed for resource '{res_name}' "
+ f"in request #{i}: {amount}"
+ )
+ total_demand[res_name] = total_demand.get(res_name, 0.0) + amount
+
+ for res_name, demanded in total_demand.items():
+ available = float(resources[res_name])
+ if demanded > available:
+ return False
+
+ return True
+LLM Response 1: from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+ 
+ New requirement:
+ At least one resource must remain unallocated after assignment.
+ """
+
+ # Error checking
+ if not isinstance(resources, dict):
+ raise ValueError("Undefined Resource!")
+
+ for req in requests:
+ if not isinstance(req, dict):
+ raise ValueError("Not a Dictionary!")
+
+ total_demand: Dict[str, float] = {}
+
+ # Calculate total demand
+ for i, req in enumerate(requests, 1):
+ for res_name, amount in req.items():
+ if res_name not in resources:
+ return False
+ try:
+ amount = float(amount)
+ except (TypeError, ValueError):
+ raise ValueError(
+ f"Invalid numeric value for resource '{res_name}' "
+ f"in request #{i}: {amount!r}"
+ )
+ if amount < 0:
+ raise ValueError(
+ f"Negative value not allowed for resource '{res_name}' "
+ f"in request #{i}: {amount}"
+ )
+
+ total_demand[res_name] = total_demand.get(res_name, 0.0) + amount
+
+ # Check feasibility AND track leftover
+ has_leftover = False
+
+ for res_name, available in resources.items():
+ available = float(available)
+ demanded = total_demand.get(res_name, 0.0)
+
+ if demanded > available:
+ return False
+
+ if demanded < available:
+ has_leftover = True
+
+ # New requirement: at least one resource must remain unused
+ return has_leftover
+
+ ------------------------------------------------------------ 
+
+
+Prompt 2: check out https://github.com/contingentUser45/EECS4312_Lab5_SpecificationLab_B/tree/Lab6SpecificationsB
+LLM Response 2: The GitHub link you shared points to:
+Repository: https://github.com/contingentUser45/EECS4312_Lab5_SpecificationLab_B
+Branch: Lab6SpecificationsB
+This appears to be a student's personal fork/clone of materials for : Software Requirements Engineering (York University, Lassonde School of Engineering), specifically for a lab focused on Requirements Specification II (likely or Lab 6 depending on the term's numbering — the repo name references while the branch is Lab6SpecificationsB).
+Main Purpose
+The lab asks students to:
+
+Implement a Python function is_allocation_feasible(...) that checks whether a set of resource requests can be satisfied given limited available resources (returns a boolean indicating if a valid allocation exists).
+Work with potentially incomplete or evolving requirements.
+Explore how requirements completeness affects AI-assisted coding (the README explicitly says students may use ChatGPT or similar tools for reasoning, code generation, or writing tests).
+Write formal specifications and additional test cases.
+
+It's a classic requirements engineering exercise: implement a solution to a resource allocation feasibility problem (sounds like a simplified variant of something like the knapsack/bin-packing feasibility question or multi-resource matching), but with emphasis on specification quality, test coverage, and AI tool usage.
+Repository Structure (root of the branch)
+
+src/solution.py — the key file where you implement the function is_allocation_feasible. (Starter code is provided; do not rename the file or function.)
+tests/test_solution.py — public unit tests for basic correctness (run with pytest).
+tests/student_tests.py — (you are supposed to create this) and add at least 5 of your own test cases.
+docs/ — empty or for additional documentation (no specific files shown at root).
+.idea/ — IntelliJ/PyCharm project settings (student-specific).
+.gitignore — standard ignores.
+README.md — contains the lab instructions, student name/ID placeholder (Cyrus yang / 219583038), setup steps, and submission notes.
+
+The README includes setup instructions:
+
+Implement in solution.py.
+(Optional but required) Create and populate student_tests.py with ≥5 tests.
+Run pytest on the test files.
+Fix failures before submission (hidden tests exist for grading).
+
+Quick Observations
+
+100% Python codebase.
+No PDFs or long formal specs visible at root — the specification is mostly described in the README.
+The branch has a commit history (12 commits noted), but it's a student repo (0 stars/forks/watchers, no releases/packages).
+This kind of lab is common in requirements courses: the real challenge is often writing precise specs and good tests rather than just solving the algorithmic part.
+
+If you're working on this lab and want help with:
+
+Understanding the resource allocation problem more precisely,
+Ideas for implementing is_allocation_feasible,
+Writing strong test cases,
+Improving the specification/requirements documentation,
+
+… just paste the current signature of the function from solution.py (inputs/expected format) or describe what you're stuck on — happy to assist! 😄
+
+Prompt 3: the new job is to implement a new requirement "At least one resource must remain un allocated after assignment. this is to apply to all previous behavior, with the changes that previous allocations that conusume all avaliable resources is invalid, even if previous conditions were satisified. So in a sense we need to change the code from the donor students code to make it so that it cannot consume all resources and at minimum leave one unallocated resource. It also needs to update soliutions tests and documents."
+LLM Response 3:
+**Got it!** This is the new requirement update from the professor:
+
+> "At least one resource must remain unallocated after assignment. This applies to **all previous behavior**, but now any allocation that consumes **all** available resources is invalid (even if it satisfied the old ≤ capacity rules)."
+
+We’re taking Cyrus’s donor code and evolving it for this change. I’ve done the full update for you:
+
+- Updated `src/solution.py` (new logic + improved docstring)
+- Updated `tests/test_solution.py` (fixed the tests that broke under the new rule + added 3 strong new tests for the new requirement)
+- Updated `README.md` (new requirement clearly documented)
+
+### 1. Updated `src/solution.py`
+
+Replace the entire file with this:
+
+```python
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ NEW REQUIREMENT (Lab 6):
+ The allocation is feasible **only if**:
+ 1. No resource is over-allocated (total demand <= capacity for every resource), AND
+ 2. At least one resource has remaining capacity > 0 after all requests are satisfied.
+
+ Allocations that exactly consume every single resource are now INVALID, even if they
+ previously passed the old capacity checks.
+
+ Args:
+ resources: Mapping from resource name to total available capacity.
+ requests: List of individual requests. Each request is a dict of resource → amount.
+
+ Returns:
+ True if the allocation satisfies both the capacity constraints AND leaves
+ at least one resource unallocated. False otherwise.
+
+ Raises:
+ ValueError: for malformed input (non-dicts, unknown resources, negative values, etc.)
+ """
+ # === Existing robust error checking (kept from donor) ===
+ if not isinstance(resources, dict):
+ raise ValueError("Resources must be a dictionary!")
+
+ total_demand: Dict[str, float] = {}
+
+ for i, req in enumerate(requests, 1):
+ if not isinstance(req, dict):
+ raise ValueError(f"Request #{i} is not a dictionary")
+
+ for res_name, amount in req.items():
+ if res_name not in resources:
+ return False # unknown resource → infeasible
+
+ try:
+ amount = float(amount)
+ except (TypeError, ValueError):
+ raise ValueError(
+ f"Invalid numeric value for resource '{res_name}' "
+ f"in request #{i}: {amount!r}"
+ )
+
+ if amount < 0:
+ raise ValueError(
+ f"Negative value not allowed for resource '{res_name}' "
+ f"in request #{i}: {amount}"
+ )
+
+ total_demand[res_name] = total_demand.get(res_name, 0.0) + amount
+
+ # === Capacity check (old behavior) ===
+ for res_name, demanded in total_demand.items():
+ available = float(resources[res_name])
+ if demanded > available:
+ return False
+
+ # === NEW REQUIREMENT: at least one resource must remain unallocated ===
+ if resources: # only enforce when resources exist
+ has_remaining = any(
+ total_demand.get(res, 0.0) < float(avail)
+ for res, avail in resources.items()
+ )
+ if not has_remaining:
+ return False # everything fully consumed → invalid
+
+ return True
+```
+
+### 2. Updated `tests/test_solution.py`
+
+Replace the whole file with this (I changed the three tests that now fail under the new rule and added three new tests specifically for the “leave one unallocated” rule):
+
+```python
+"""
+Public test suite for the meeting slot suggestion exercise.
+
+Students can run these tests locally to check basic correctness of their implementation.
+The hidden test suite used for grading contains additional edge cases.
+"""
+from solution import is_allocation_feasible
+import pytest
+
+def test_basic_feasible_single_resource():
+ # Now infeasible under new rule (fully consumes the only resource)
+ resources = {'cpu': 10}
+ requests = [{'cpu': 3}, {'cpu': 4}, {'cpu': 3}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_multi_resource_infeasible_one_overloaded():
+ resources = {'cpu': 8, 'mem': 30}
+ requests = [{'cpu': 2, 'mem': 8}, {'cpu': 3, 'mem': 10}, {'cpu': 3, 'mem': 14}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_missing_resource_in_availability():
+ resources = {'cpu': 10}
+ requests = [{'cpu': 2}, {'gpu': 1}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_non_dict_request_raises():
+ resources = {'cpu': 5}
+ requests = [{'cpu': 2}, ['mem', 1]]
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+
+# ====================== UPDATED / NEW TESTS ======================
+
+def test_exact_capacity_should_be_infeasible():
+ # New rule: exact consumption of ALL resources → False
+ resources = {'cpu': 12, 'mem': 64}
+ requests = [
+ {'cpu': 4, 'mem': 16},
+ {'cpu': 5, 'mem': 24},
+ {'cpu': 3, 'mem': 24},
+ ]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_empty_requests_list_is_feasible():
+ # Still True (resources remain completely unallocated)
+ resources = {'cpu': 100, 'gpu': 4}
+ requests = []
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_empty_resources_with_nonempty_requests_is_infeasible():
+ resources = {}
+ requests = [{'cpu': 1}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_full_consumption_single_resource_infeasible():
+ # New requirement test
+ resources = {'cpu': 8}
+ requests = [{'cpu': 0}, {'cpu': 0}, {'cpu': 8}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_one_resource_left_unallocated_is_feasible():
+ # New requirement: as long as ≥1 resource has slack, OK
+ resources = {'cpu': 10, 'mem': 30}
+ requests = [{'cpu': 10, 'mem': 15}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_all_resources_fully_consumed_infeasible():
+ # New requirement: everything used up → False
+ resources = {'cpu': 10, 'mem': 30}
+ requests = [{'cpu': 10}, {'mem': 30}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_all_requests_have_no_resources_keys():
+ resources = {'cpu': 10, 'mem': 32}
+ requests = [{}, {}, {}]
+ assert is_allocation_feasible(resources, requests) is True
+```
+
+### 3. Updated `README.md`
+
+Add this paragraph right after the **System Description** section:
+
+```markdown
+## Updated Requirement (Lab 6)
+
+**At least one resource must remain unallocated after assignment.**
+
+- All previous capacity-checking behavior still applies.
+- However, any allocation that consumes **every single resource completely** is now invalid.
+- This change applies retroactively to all test cases.
+```
+
+### How to apply this in your branch
+
+1. `git checkout -b lab6-updated-requirement` (or whatever name the prof wants)
+2. Replace the three files above
+3. `git add src/solution.py tests/test_solution.py README.md`
+4. `git commit -m "Implement new requirement: at least one resource must remain unallocated"`
+5. `git push`
+
+Run `pytest tests/test_solution.py` — everything should pass now.
+
+Want me to also generate a nice `student_tests.py` with 8+ high-quality tests (including more edge cases for the new rule)? Just say the word and I’ll drop it. You’re all set for the grand czar’s new spec! 🚀

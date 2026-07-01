@@ -1,0 +1,289 @@
+Prompt 1: Help me update this code for this new requriementsYou are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. 
+
+new requrement: At least one resource must remain unallocated after assignment. This requirement applies in addition to all previously described behavior. An allocation that satisfies all other conditions but consumes all available resources is no longer valid. Update your solution, tests and documents to incorporate this requirement.
+
+, For the development, consider the following information:
+ System Goal: The system defines a resource allocation that requires can be made to allocate resources.
+ Inputs: Same as last time
+ Outputs: Same as last time
+ Functional requirements: [{'fr_1': 'New functional requirement: The system must not allow a request to allocate all available resources.', 'fr_10': '', 'fr_2': '', 'fr_3': '', 'fr_4': '', 'fr_5': '', 'fr_6': '', 'fr_7': '', 'fr_8': '', 'fr_9': ''}]
+ Constraints: [{'c_1': 'Same as last time', 'c_2': '', 'c_3': '', 'c_4': '', 'c_5': '', 'c_6': ''}]
+ Invariants: [{'inv_1': '', 'inv_2': '', 'inv_3': ''}]
+ Negative requirements: [{'neg_req_1': '', 'neg_req_2': ''}]
+ Tie breaking rule: nan
+ Exception: nan
+ , 
+ from typing import Dict, List, Union
+import math
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ # --- Type checks for inputs ---
+ if not isinstance(resources, dict):
+ raise TypeError("Resources must be a dictionary.")
+ if not isinstance(requests, list):
+ raise TypeError("Requests must be a list of dictionaries.")
+ if resources is None:
+ raise TypeError("Resources cannot be None.")
+ if requests is None:
+ raise TypeError("Requests cannot be None.")
+ if not resources:
+ raise ValueError("Resources cannot be empty.")
+
+ # --- Validate resources ---
+ for res, amount in resources.items():
+ if not isinstance(res, str):
+ raise TypeError("Resource keys must be strings.")
+ if not isinstance(amount, (int, float)):
+ raise TypeError("Resource amounts must be numeric.")
+ if amount < 0:
+ raise ValueError("Resource amounts cannot be negative.")
+ if math.isnan(amount) or math.isinf(amount):
+ raise ValueError("Resource amounts cannot be NaN or infinite.")
+
+ # --- Validate requests ---
+ for req in requests:
+ if not isinstance(req, dict):
+ raise TypeError("Each request must be a dictionary.")
+ for res, amount in req.items():
+ if not isinstance(res, str):
+ raise TypeError("Request keys must be strings.")
+ if res not in resources:
+ raise ValueError(f"Resource '{res}' not defined in resources.")
+ if not isinstance(amount, (int, float)):
+ raise TypeError("Requested amount must be numeric.")
+ if isinstance(amount, (list, tuple, dict)):
+ raise TypeError("Requested amount cannot be a list, tuple, or dict.")
+ if amount < 0:
+ raise ValueError("Requested amounts cannot be negative.")
+ if math.isnan(amount) or math.isinf(amount):
+ raise ValueError("Requested amounts cannot be NaN or infinite.")
+
+ # --- Track allocation ---
+ allocation = {res: 0 for res in resources}
+ 
+ for req in requests:
+ for res, amount in req.items():
+ allocation[res] += amount
+ if allocation[res] > resources[res]:
+ return False
+
+ return True
+LLM Response 1: from typing import Dict, List, Union
+import math
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determines if a set of resource requests can be satisfied given available resources,
+ ensuring at least one resource remains unallocated.
+
+ Args:
+ resources (Dict[str, Number]): Available resources as {resource_name: amount}.
+ requests (List[Dict[str, Number]]): List of requests as {resource_name: amount}.
+
+ Returns:
+ bool: True if all requests fit and at least one resource remains unallocated, else False.
+ """
+
+ # --- Input type checks ---
+ if resources is None:
+ raise TypeError("Resources cannot be None.")
+ if requests is None:
+ raise TypeError("Requests cannot be None.")
+ if not isinstance(resources, dict):
+ raise TypeError("Resources must be a dictionary.")
+ if not isinstance(requests, list):
+ raise TypeError("Requests must be a list of dictionaries.")
+ if not resources:
+ raise ValueError("Resources cannot be empty.")
+
+ # --- Validate resources ---
+ for res, amount in resources.items():
+ if not isinstance(res, str):
+ raise TypeError("Resource keys must be strings.")
+ if not isinstance(amount, (int, float)):
+ raise TypeError("Resource amounts must be numeric.")
+ if amount < 0:
+ raise ValueError("Resource amounts cannot be negative.")
+ if math.isnan(amount) or math.isinf(amount):
+ raise ValueError("Resource amounts cannot be NaN or infinite.")
+
+ # --- Validate requests ---
+ for req in requests:
+ if not isinstance(req, dict):
+ raise TypeError("Each request must be a dictionary.")
+ for res, amount in req.items():
+ if not isinstance(res, str):
+ raise TypeError("Request keys must be strings.")
+ if res not in resources:
+ raise ValueError(f"Resource '{res}' not defined in resources.")
+ if not isinstance(amount, (int, float)):
+ raise TypeError("Requested amount must be numeric.")
+ if isinstance(amount, (list, tuple, dict)):
+ raise TypeError("Requested amount cannot be a list, tuple, or dict.")
+ if amount < 0:
+ raise ValueError("Requested amounts cannot be negative.")
+ if math.isnan(amount) or math.isinf(amount):
+ raise ValueError("Requested amounts cannot be NaN or infinite.")
+
+ # --- Track allocation ---
+ allocation = {res: 0 for res in resources}
+
+ for req in requests:
+ for res, amount in req.items():
+ allocation[res] += amount
+ if allocation[res] > resources[res]:
+ return False # exceeds available resource
+
+ # --- Enforce "one resource must remain unallocated" ---
+ if all(allocation[res] == resources[res] for res in resources):
+ return False
+
+ return True
+
+ ------------------------------------------------------------ 
+
+
+Prompt 2: 
+
+Given: 
+
+## Student Name: Ajit sanghera
+## Student ID: 218938688
+
+"""
+Stub file for the is allocation feasible exercise.
+
+Implement the function `is_allocation_feasible` to Determine whether a set of resource requests can be satisfied 
+given limited capacities. Take int account any possible constraints. See the lab handout
+for full requirements.
+"""
+ 
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+
+ """
+
+ if not isinstance(resources, dict):
+ raise ValueError("must be a distionary")
+
+ if not isinstance(requests, list):
+ raise ValueError("must be a list")
+
+ for req in requests:
+
+ if not isinstance(req, dict):
+ raise ValueError("must be a dictionary")
+
+ for resource, amount in req.items():
+
+ if resource not in resources:
+ return False
+
+ if amount < 0:
+ raise ValueError(f" the allocation cannot be less than 0")
+
+ if not isinstance(resource, str):
+ raise ValueError("resource must be a string")
+
+ if not isinstance(amount, int):
+ raise ValueError("resource must be a integer")
+
+ if amount > resources.get(resource)
+ return False 
+ return True
+
+ # TODO: Implement this function
+ raise NotImplementedError("suggest_slots function has not been implemented yet")
+
+New functional requirement: The system must not allow a request to allocate all avaliable resources. 
+
+LLM Response 2: 
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ New functional requirement:
+ - The system must NOT allow allocating ALL available resources for any resource.
+ i.e., for every resource r: total_requested[r] < resources[r]
+ """
+
+ # -------- Basic type checks --------
+ if not isinstance(resources, dict):
+ raise ValueError("resources must be a dictionary")
+
+ if not isinstance(requests, list):
+ raise ValueError("requests must be a list")
+
+ # Validate resources dictionary and prep totals
+ totals: Dict[str, Number] = {}
+
+ for r_name, cap in resources.items():
+ if not isinstance(r_name, str):
+ raise ValueError("resource names must be strings")
+ if not isinstance(cap, (int, float)):
+ raise ValueError("resource capacities must be int or float")
+ if cap < 0:
+ raise ValueError("resource capacities cannot be negative")
+ totals[r_name] = 0
+
+ # -------- Process each request --------
+ for req in requests:
+ if not isinstance(req, dict):
+ raise ValueError("each request must be a dictionary")
+
+ for r_name, amount in req.items():
+ if not isinstance(r_name, str):
+ raise ValueError("resource name in request must be a string")
+ if not isinstance(amount, (int, float)):
+ raise ValueError("requested amount must be int or float")
+ if amount < 0:
+ raise ValueError("requested amount cannot be negative")
+
+ # Resource must exist
+ if r_name not in resources:
+ return False
+
+ # Accumulate and check capacity
+ totals[r_name] += amount
+ if totals[r_name] > resources[r_name]:
+ return False
+
+ # -------- New requirement: can't allocate ALL available capacity --------
+ for r_name, cap in resources.items():
+ if totals[r_name] >= cap:
+ # >= blocks both "equal to all" and "over"
+ return False
+
+ return True

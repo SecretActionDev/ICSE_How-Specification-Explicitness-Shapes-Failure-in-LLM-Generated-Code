@@ -1,0 +1,228 @@
+Prompt 1: Help me update this code for this new requriementsYou are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. 
+
+new requrement: At least one resource must remain unallocated after assignment. This requirement applies in addition to all previously described behavior. An allocation that satisfies all other conditions but consumes all available resources is no longer valid. Update your solution, tests and documents to incorporate this requirement.
+
+, For the development, consider the following specification:
+ System Goal: Determine whether a set of resource requests can be satisfied with available capacities and still leave at least one resource with unused capacity after allocation
+ Inputs: what task restore
+ Outputs: what task restore
+ Acceptance Criteria [{'ac_1': 'Given the user provides valid resources and request when the total requested amount for any resource exceeds the available capacity, then the system records the allocation as feasible', 'ac_2': '', 'ac_3': '', 'ac_4': '', 'ac_5': '', 'ac_6': ''}, {'ac_1': '', 'ac_2': 'Given the user provides valid resources and request when the total requested amount for any resource exceeds the available capacity, then the system records the allocation as feasible', 'ac_3': '', 'ac_4': '', 'ac_5': '', 'ac_6': ''}, {'ac_1': '', 'ac_2': '', 'ac_3': 'Given the total requested amount for any resource exceeds the available capacity, then the system reports the allocation as infeasible', 'ac_4': '', 'ac_5': '', 'ac_6': ''}, {'ac_1': '', 'ac_2': '', 'ac_3': '', 'ac_4': 'Given a request contains invalid resource values when the system eventually feasibility, then the allocation is reported as infeasible', 'ac_5': '', 'ac_6': ''}, {'ac_1': '', 'ac_2': '', 'ac_3': '', 'ac_4': '', 'ac_5': 'Given a request refers to undefined resource under system needs feasibility, then the allocation is reported as infeasible', 'ac_6': ''}, {'ac_1': '', 'ac_2': '', 'ac_3': '', 'ac_4': '', 'ac_5': '', 'ac_6': 'Given multiple valid req for the same resource when system usages feasibility, then the total demand is summed before comparing'}]
+ Constraints: [{'c_1': 'Resource capacities are fixed and cannot be read or dynamically adjusted during allocation', 'c_2': '', 'c_3': '', 'c_4': '', 'c_5': '', 'c_6': ''}, {'c_1': '', 'c_2': 'All resource capacities must be numbers greater than or equal to zero', 'c_3': '', 'c_4': '', 'c_5': '', 'c_6': ''}, {'c_1': '', 'c_2': '', 'c_3': 'All requests are evaluated simultaneously not in any order', 'c_4': '', 'c_5': '', 'c_6': ''}, {'c_1': '', 'c_2': '', 'c_3': '', 'c_4': 'Requests are only of resources existing', 'c_5': '', 'c_6': ''}, {'c_1': '', 'c_2': '', 'c_3': '', 'c_4': '', 'c_5': 'Partial allocations over all allowed all requests must be satisfied', 'c_6': ''}, {'c_1': '', 'c_2': '', 'c_3': '', 'c_4': '', 'c_5': '', 'c_6': 'An allocation that would take all capacity or write is invalid at least one resource must remain'}]
+ , 
+ ##Student Name: Negar Khalilazar
+##Student ID: 221037437
+"""
+Stub file for the is allocation feasible exercise.
+
+Implement the function `is_allocation_feasible` to Determine whether a set of resource requests can be satisfied 
+given limited capacities. Take int account any possible constraints. See the lab handout
+for full requirements.
+"""
+ 
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+
+ """
+ # TODO: Implement this function
+ total_demand: Dict[str, Number] = {name: 0 for name in resources}
+ for req in requests:
+ for r_name, amount in req.items():
+ if r_name not in resources or amount < 0:
+ return False
+ total_demand[r_name] += amount
+ for r_name, capacity in resources.items():
+ if total_demand[r_name] > capacity:
+ return False
+ return True
+ raise NotImplementedError("suggest_slots function has not been implemented yet")
+
+LLM Response 1: from typing import Dict, List, Union
+import math
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities,
+ ensuring at least one resource remains unallocated.
+
+ Raises:
+ TypeError: If input types are incorrect.
+ ValueError: If numeric values are invalid (negative, NaN, or infinite), or request uses undefined resources.
+
+ Returns:
+ True if allocation is feasible and leaves at least one resource with unused capacity, False otherwise.
+ """
+
+ # --- Type checks ---
+ if not isinstance(resources, dict):
+ raise TypeError("resources must be a dictionary")
+ if not isinstance(requests, list):
+ raise TypeError("requests must be a list")
+ if resources is None:
+ raise TypeError("resources cannot be None")
+ if requests is None:
+ raise TypeError("requests cannot be None")
+ if len(resources) == 0:
+ raise ValueError("resources cannot be empty")
+
+ # --- Resource keys and values validation ---
+ for r_key, r_val in resources.items():
+ if not isinstance(r_key, str):
+ raise TypeError(f"resource key must be a string, got {type(r_key)}")
+ if not isinstance(r_val, (int, float)):
+ raise TypeError(f"resource value must be numeric, got {type(r_val)}")
+ if r_val < 0 or math.isnan(r_val) or math.isinf(r_val):
+ raise ValueError(f"resource value must be non-negative finite number, got {r_val}")
+
+ # Initialize total demand
+ total_demand: Dict[str, Number] = {r: 0 for r in resources}
+
+ # --- Process requests ---
+ for req in requests:
+ if not isinstance(req, dict):
+ raise TypeError("each request must be a dictionary")
+ for req_key, req_val in req.items():
+ if not isinstance(req_key, str):
+ raise TypeError(f"request key must be a string, got {type(req_key)}")
+ if req_key not in resources:
+ raise ValueError(f"request references undefined resource: {req_key}")
+ if not isinstance(req_val, (int, float)):
+ raise TypeError(f"request value must be numeric, got {type(req_val)}")
+ if req_val < 0 or math.isnan(req_val) or math.isinf(req_val):
+ raise ValueError(f"request value must be non-negative finite number, got {req_val}")
+ if isinstance(req_val, dict):
+ raise TypeError("nested values in requests are not allowed")
+ total_demand[req_key] += req_val
+
+ # --- Check feasibility ---
+ for r_name, capacity in resources.items():
+ if total_demand[r_name] > capacity:
+ return False # exceeds capacity
+
+ # At least one resource must remain unallocated
+ for r_name, capacity in resources.items():
+ if total_demand[r_name] < capacity:
+ return True
+
+ # All resources fully used _ infeasible
+ return False
+
+ ------------------------------------------------------------ 
+
+Prompt 2: "give me an acceptance criterion that would be considering the new requirement"
+LLM Response 2: "Remaining unallocated resource (new requirement)
+Given all requests can be satisfied without exceeding capacities,
+when the allocation would consume all available resources,
+then the system reports the allocation as infeasible because at least one resource must remain unallocated."
+
+--------------------------------------------------
+Prompt 3: "explain edge cases for me based on which i can write tests where new requirement is tested"
+LLM Response 3: "Here are strong edge cases you can write tests for, grouped by “new requirement” themes. I’ll phrase each as what the edge case is + what the test should expect.
+
+1) Boundary conditions (the biggest “new req” trap)
+
+Exactly full capacity: total demand == capacity
+
+Expect: True (feasible).
+
+Just over capacity by 1 / 0.1: demand slightly exceeds
+
+Expect: False.
+
+Zero capacity:
+
+No requests OR all requests are 0 → Expect True
+
+Any positive request → Expect False
+
+Very small floats (precision-ish):
+
+capacity 1.0, requests [0.1]*10 → should be True (but careful with floating rounding; you can use 0.5 + 0.5 instead)
+
+2) “Unknown resource” behavior
+
+A request includes a resource not in resources (e.g., gpu when only cpu)
+
+Expect: False (not feasible).
+
+A request dict is empty {} (no resources requested)
+
+Expect: True (it changes nothing).
+
+3) Input validation edge cases (should raise)
+
+These are great for “new requirement tested” because hidden tests love them.
+
+Resources validation
+
+resources is not a dict (list, None, string) → TypeError
+
+resource name is not a string (1) or is empty "" → ValueError
+
+capacity not numeric ("10", None) → TypeError
+
+capacity negative (-1) → ValueError
+
+Requests validation
+
+requests not a list (dict, string, None) → TypeError
+
+requests contains a non-dict entry (tuple, list, int) → ValueError
+
+request amount not numeric ("2", None) → TypeError
+
+request amount negative (-3) → usually False (or ValueError depending on spec, but you already return False)
+
+4) Weird-but-valid structures
+
+Multiple requests refer to the same resource many times (stress aggregation)
+
+Expect based on sum.
+
+Requests include extra keys but also valid ones: {"cpu": 2, "mem": 1} while only cpu exists
+
+Expect: False (because mem unknown).
+
+Duplicate resources in resources isn’t possible (dict), but case sensitivity matters:
+
+resources has "CPU" but request uses "cpu" → Expect False (unknown key).
+
+5) Empty cases (often overlooked)
+
+resources = {} and requests = []
+
+What should happen depends on spec, but usually: True (nothing to allocate).
+
+resources = {} and requests = [{"cpu": 1}]
+
+Expect: False (unknown resource).
+
+resources non-empty and requests = []
+
+Expect: True (no demand).
+
+6) Large numbers / performance-ish (still unit-testable)
+
+Very large capacities and demands (e.g., 10**9)
+
+Expect correct True/False without overflow issues (Python is fine, but tests show robustness)."
+--------------------------------------------------

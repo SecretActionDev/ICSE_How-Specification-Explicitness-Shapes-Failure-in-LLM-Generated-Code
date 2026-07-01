@@ -1,0 +1,180 @@
+Prompt 1: Help me update this code for this new requriementsYou are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. 
+
+new requrement: At least one resource must remain unallocated after assignment. This requirement applies in addition to all previously described behavior. An allocation that satisfies all other conditions but consumes all available resources is no longer valid. Update your solution, tests and documents to incorporate this requirement.
+
+, For the development, consider the following specification:
+ System Goal: The objective of the system is to determine whether a set of resources can be allocated without exceeding capacity. Given the updated requirements, a valid allocation must preserve at least one resource unallocated after satisfying all other requirements.
+ Inputs: Inputs are the event list to be scheduled, claim for the output schedule, and the available resources. If all required fit within capacity and at least one resource remains unallocated after assignment
+ Outputs: Should return true
+ Acceptance Criteria [{'ac_1': 'Given # of slots', 'ac_2': '', 'ac_3': '', 'ac_4': '', 'ac_5': '', 'ac_6': ''}, {'ac_1': '', 'ac_2': 'Given # 5 of slots', 'ac_3': '', 'ac_4': '', 'ac_5': '', 'ac_6': ''}, {'ac_1': '', 'ac_2': '', 'ac_3': 'Keep # 6 of slots', 'ac_4': '', 'ac_5': '', 'ac_6': ''}, {'ac_1': '', 'ac_2': '', 'ac_3': '', 'ac_4': 'Keep # 1 of slots', 'ac_5': '', 'ac_6': ''}, {'ac_1': '', 'ac_2': '', 'ac_3': '', 'ac_4': '', 'ac_5': 'Given by logically constraints must be valid non-empty. Micro (a) with have it right one 2.5 each, then the function return', 'ac_6': ''}, {'ac_1': '', 'ac_2': '', 'ac_3': '', 'ac_4': '', 'ac_5': '', 'ac_6': 'Given the available capacity for a time 1) 2.5, when the total required are 2b for CPU over true.'}]
+ Constraints: [{'c_1': 'Resource should be additive across all requests', 'c_2': '', 'c_3': '', 'c_4': '', 'c_5': '', 'c_6': ''}, {'c_1': '', 'c_2': 'Total required amount for long solution must not exceed in capacity', 'c_3': '', 'c_4': '', 'c_5': '', 'c_6': ''}, {'c_1': '', 'c_2': '', 'c_3': 'Allocate one resource must obtain unused capacity after allocation', 'c_4': '', 'c_5': '', 'c_6': ''}, {'c_1': '', 'c_2': '', 'c_3': '', 'c_4': 'All requested allocated amount in the available resource list', 'c_5': '', 'c_6': ''}, {'c_1': '', 'c_2': '', 'c_3': '', 'c_4': '', 'c_5': 'Required utilization constraints must be valid non-empty number', 'c_6': ''}, {'c_1': '', 'c_2': '', 'c_3': '', 'c_4': '', 'c_5': '', 'c_6': 'Each request must be properly formatted delivery.'}]
+ , 
+ ## Student Name: Beckham Gahirwa
+## Student ID: 220043782
+
+"""
+Stub file for the is allocation feasible exercise.
+
+Implement the function `is_allocation_feasible` to Determine whether a set of resource requests can be satisfied 
+given limited capacities. Take int account any possible constraints. See the lab handout
+for full requirements.
+"""
+ 
+from typing import Dict, List, Union
+import math
+
+Number = Union[int, float]
+
+def _is_finite_number(x: object) -> bool:
+ return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(float(x))
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+
+ """
+ # TODO: Implement this function
+ if not isinstance(resources, dict):
+ raise ValueError("resources must be a dict mapping resource name to capacity")
+ if not isinstance(requests, list):
+ raise ValueError("requests must be a list of request dicts")
+
+ # Validate and normalize capacities
+ capacities: Dict[str, float] = {}
+ for name, cap in resources.items():
+ if not isinstance(name, str):
+ raise ValueError("resource names must be strings")
+ if not _is_finite_number(cap):
+ raise ValueError(f"capacity for resource '{name}' must be a finite number")
+ cap_f = float(cap)
+ if cap_f < 0:
+ raise ValueError(f"capacity for resource '{name}' must be non-negative")
+ capacities[name] = cap_f
+
+ totals: Dict[str, float] = {name: 0.0 for name in capacities}
+
+ for req in requests:
+ if not isinstance(req, dict):
+ # required by your public test
+ raise ValueError("each request must be a dict mapping resource name to amount required")
+
+ for name, amount in req.items():
+ # Unknown resource => infeasible (public test requires this)
+ if name not in capacities:
+ return False
+
+ if not _is_finite_number(amount):
+ raise ValueError(f"request amount for resource '{name}' must be a finite number")
+ amt_f = float(amount)
+ if amt_f < 0:
+ raise ValueError(f"request amount for resource '{name}' must be non-negative")
+
+ totals[name] += amt_f
+
+ # Early exit; float-friendly (no epsilon games unless the handout says otherwise)
+ if totals[name] > capacities[name]:
+ return False
+
+ return True
+
+LLM Response  Response 1: from typing import Dict, List, Union
+import math
+
+Number = Union[int, float]
+
+def _is_finite_number(x: object) -> bool:
+ return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(float(x))
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities,
+ and at least one resource remains unallocated after assignment.
+
+ Raises:
+ TypeError: If inputs or resource/request keys/values are of incorrect type.
+ ValueError: If numbers are negative, NaN, or infinite, or requests reference unknown resources.
+ """
+ # ------------------------
+ # TYPE CHECKS
+ # ------------------------
+ if not isinstance(resources, dict):
+ raise TypeError("resources must be a dict mapping resource name to capacity")
+ if not isinstance(requests, list):
+ raise TypeError("requests must be a list of request dicts")
+ if not resources:
+ raise ValueError("resources dictionary must not be empty")
+
+ # ------------------------
+ # VALIDATE RESOURCES
+ # ------------------------
+ capacities: Dict[str, float] = {}
+ for name, cap in resources.items():
+ if not isinstance(name, str):
+ raise TypeError("resource names must be strings")
+ if not _is_finite_number(cap):
+ raise ValueError(f"capacity for resource '{name}' must be a finite number")
+ cap_f = float(cap)
+ if cap_f < 0:
+ raise ValueError(f"capacity for resource '{name}' must be non-negative")
+ capacities[name] = cap_f
+
+ totals: Dict[str, float] = {name: 0.0 for name in capacities}
+
+ # ------------------------
+ # VALIDATE REQUESTS
+ # ------------------------
+ for req in requests:
+ if not isinstance(req, dict):
+ raise TypeError("each request must be a dict mapping resource name to amount required")
+ for name, amount in req.items():
+ if not isinstance(name, str):
+ raise TypeError("request keys must be strings")
+ if name not in capacities:
+ raise ValueError(f"request references unknown resource '{name}'")
+ if not _is_finite_number(amount):
+ raise ValueError(f"request amount for resource '{name}' must be a finite number")
+ amt_f = float(amount)
+ if amt_f < 0:
+ raise ValueError(f"request amount for resource '{name}' must be non-negative")
+ totals[name] += amt_f
+ if totals[name] > capacities[name]:
+ return False # allocation exceeds capacity
+
+ # ------------------------
+ # NEW REQUIREMENT
+ # At least one resource must remain unallocated
+ # ------------------------
+ if not any(totals[name] < capacities[name] for name in capacities):
+ return False
+
+ return True
+
+ ------------------------------------------------------------ 
+
+Prompt 2: A new requirement says that at least one resource must remain unallocated after assignment. How should this change my implementation?
+LLM Response 2: You should update the feasibility condition so that staying within capacity is no longer sufficient. After processing all requests, the function must check that at least one resource still has unused capacity.
+
+Prompt 3: Does that mean an allocation that exactly matches all capacities is now invalid?
+LLM Response 3: Yes. Even if all requests fit perfectly, the allocation should be rejected if every resource is fully consumed.
+
+Prompt 4: What is the simplest way to implement this check?
+LLM Response 4: After summing all requests, add a final condition that returns true only if there exists at least one resource where total usage is strictly less than its capacity.
+
+Prompt 5: Which test cases should change under this new requirement?
+LLM Response 5: Any test that previously expected a perfect-fit allocation to be feasible should now fail. You should also add new tests to confirm that leaving unused capacity in at least one resource is still considered valid.
+
+Prompt 6: Does this affect input validation or error handling?
+LLM Response 6: No, existing validation rules stay the same. The change only affects the final feasibility condition.

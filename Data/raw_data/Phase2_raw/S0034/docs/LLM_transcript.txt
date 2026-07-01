@@ -1,0 +1,208 @@
+Prompt 1: Help me update this code for this new requriementsYou are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. 
+
+new requrement: At least one resource must remain unallocated after assignment. This requirement applies in addition to all previously described behavior. An allocation that satisfies all other conditions but consumes all available resources is no longer valid. Update your solution, tests and documents to incorporate this requirement.
+
+, For the development, consider the following specification:
+ System Goal: the system determines whether a set of resource requests can be satisfied given available capacities without exceeding any resource. It also enforces that atleast one resource must remain strictly unallocated after assignment for the allocation to be considered valid
+ Inputs: resources: Dict[str, Num] → Mapping from resource name to total available capacity. requests: List[Dict[str, Num]] → List of requests. Each request is mapping from resource name to the amount required
+ Outputs: True ⇒ allocation is feasible, False ⇒ Otherwise
+ Acceptance Criteria [{'ac_1': 'When resources with atleast one spare existing and requests within capacities when is allocation - feasible is called then its true', 'ac_2': "When requester whose totals exactly equal every available resource's capacity when the allocation is evaluated the allocation is invalid", 'ac_3': '', 'ac_4': 'When any resource whose total requested amount exceeding capacity when the allocation is evaluated then allocation is invalid', 'ac_5': 'Given no requests and atleast one available resource when the allocation is evaluated then allocation is valid', 'ac_6': 'When a malformed request entry that is not a mapping of resources name to amounts when the allocation is evaluated then the system releases error'}]
+ Constraints: [{'c_1': 'All resource capacities and req amounts are non negative', 'c_2': 'Atleast one resource must remain unallocated', 'c_3': 'Resource name and keys are non empty strings', 'c_4': 'The user will provide valid input types', 'c_5': 'The system operates in single threaded', 'c_6': 'Resource capacities are fixed and known in advance'}]
+ , 
+ ## Student Name:
+## Student ID: 
+
+"""
+Stub file for the is allocation feasible exercise.
+
+Implement the function `is_allocation_feasible` to Determine whether a set of resource requests can be satisfied 
+given limited capacities. Take int account any possible constraints. See the lab handout
+for full requirements.
+"""
+ 
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+
+ """
+ # Validate that all requests are dictionaries
+ for request in requests:
+ if not isinstance(request, dict):
+ raise ValueError("Each request must be a dictionary")
+ 
+ # Calculate total demand for each resource
+ total_demand = {}
+ 
+ for request in requests:
+ for resource, amount in request.items():
+ # Check if the requested resource exists in available resources
+ if resource not in resources:
+ return False
+ 
+ # Sum up the total demand for this resource
+ total_demand[resource] = total_demand.get(resource, 0) + amount
+ 
+ # Check if total demand for each resource exceeds available capacity
+ for resource, capacity in resources.items():
+ if total_demand.get(resource, 0) > capacity:
+ return False
+ 
+ return True
+LLM Response 1: from typing import Dict, List, Union
+import math
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities,
+ ensuring at least one resource remains unallocated.
+
+ Args:
+ resources: Dict[str, Number]
+ Mapping from resource name to total available capacity.
+ requests: List[Dict[str, Number]]
+ List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if allocation is feasible and at least one resource remains unallocated, False otherwise.
+
+ Raises:
+ TypeError: If inputs are not of expected type.
+ ValueError: If numeric values are invalid (negative, NaN, Inf) or required keys missing.
+ """
+ # Basic type checks
+ if resources is None or not isinstance(resources, dict):
+ raise TypeError("Resources must be a dictionary.")
+ if not resources:
+ raise ValueError("Resources dictionary cannot be empty.")
+ if requests is None or not isinstance(requests, list):
+ raise TypeError("Requests must be a list.")
+
+ # Validate resources
+ for key, value in resources.items():
+ if not isinstance(key, str) or not key:
+ raise TypeError("Resource keys must be non-empty strings.")
+ if not isinstance(value, (int, float)):
+ raise TypeError(f"Resource value for '{key}' must be a number.")
+ if value < 0 or math.isnan(value) or math.isinf(value):
+ raise ValueError(f"Resource value for '{key}' must be non-negative, finite, and valid.")
+
+ # Validate requests
+ for request in requests:
+ if not isinstance(request, dict):
+ raise TypeError("Each request must be a dictionary.")
+ for key, value in request.items():
+ if not isinstance(key, str) or not key:
+ raise TypeError("Request keys must be non-empty strings.")
+ if key not in resources:
+ raise ValueError(f"Request key '{key}' is not in available resources.")
+ if not isinstance(value, (int, float)):
+ raise TypeError(f"Request value for '{key}' must be a number.")
+ if value < 0 or math.isnan(value) or math.isinf(value):
+ raise ValueError(f"Request value for '{key}' must be non-negative, finite, and valid.")
+
+ # Calculate total demand for each resource
+ total_demand = {key: 0 for key in resources}
+ for request in requests:
+ for key, value in request.items():
+ total_demand[key] += value
+
+ # Check that total demand does not exceed capacity
+ for key, demand in total_demand.items():
+ if demand > resources[key]:
+ return False
+
+ # Ensure at least one resource remains unallocated
+ for key, demand in total_demand.items():
+ if demand < resources[key]:
+ return True
+
+ # All resources fully allocated _ invalid
+ return False
+
+ ------------------------------------------------------------ 
+
+Prompt 2: Is Resource Allocation Feasible Lab Repository
+This repository contains the starter code, templates, and tests for the Requirements Specification II lab. Students will implement implement a function to determine the feasibility of resrouce allocation, write specifications, and explore the impact of requirements completeness on AI‑assisted coding.
+
+LLM Response 2:  
+You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. You may use ChatGPT to assist with reasoning about the problem, generating code, or writing tests.
+
+Structure
+src/solution.py – starter file where you implement is_allocation_feasible. Do not rename this file.
+test_solution.py – Public tests you can run to check basic correctness. Use a test runner such as pytest to execute these tests.
+Running Tests
+Install Python 3 if not already installed.
+Implement your solution in solution.py.
+Optionally create student_tests.py and write at least 5 test cases.
+Run tests using:
+pytest file_name.py
+Fix any failing tests before moving on. Remember that hidden tests will check additional requirements.
+Submitting Your Work
+Follow the instruction in the manual.
+
+Plan: Add Spare-Resource Requirement
+TL;DR: Require at least one resource to remain strictly unallocated after satisfying requests. Update the implementation (is_allocation_feasible), adjust four existing tests and add one positive-case test in test_solution.py, and add one sentence to the system description in README.md. Then run tests.
+
+Steps
+Modify is_allocation_feasible in solution.py: keep current validation and per-resource capacity checks, then require there exists at least one resource r where resources[r] > total_demand.get(r, 0) (strict >). If no such resource exists, return False.
+Update tests in test_solution.py: change assertions to False for test_basic_feasible_single_resource, test_exact_capacity_multi_resource, test_fractional_requests, and test_zero_capacity_zero_request; keep negative tests unchanged; add test_allocation_requires_at_least_one_unallocated that asserts True when at least one resource remains unused (e.g., add a small unused disk resource).
+Update documentation in README.md: after the system description, add: “New requirement: at least one resource must remain unallocated after assignment — any allocation that consumes the full capacity of every available resource is infeasible.” Add a brief note in Running Tests that tests were updated.
+Run and verify: from project root run PYTHONPATH=src pytest -q (or export PYTHONPATH=src then pytest -q), fix any failures, then commit.
+Further Considerations
+Floating-point tolerance: decide whether near-equality counts as “fully consumed”; if needed, use a small epsilon when comparing floats or adjust tests to avoid ambiguity.
+Edge cases: empty resources dict (no resource can remain unallocated → treat as infeasible), and zero-capacity resources should not count as “unallocated” unless capacity > demand.
+Approve these changes and I will produce the exact edits (implementation patch, updated tests, and README change).
+
+**Summary** 
+- Any allocation that previously passed only because totals equalled capacity for every resource will now be invalid — at least one resource must have leftover capacity (strict >).
+
+**Scenarios That Now Fail**
+- **Single-resource exact consumption:** total demand == capacity (e.g., resources={'cpu':10}, requests summing to 10) → now infeasible. 
+- **Multi-resource all exactly consumed:** every resource has demand == capacity (e.g., cpu and mem both exactly used) → now infeasible. 
+- **Fractional exact consumption:** float sums that exactly equal capacity (e.g., 4.5 = 1.5+3.0) → now infeasible. 
+- **Zero-capacity fully consumed:** capacity 0 with demand 0 (e.g., resources={'cpu':0}, requests=[{'cpu':0}]) → now infeasible. 
+- **Empty-resources:** no resources available and empty requests — there is no resource that can remain unallocated → treat as infeasible under the new rule. 
+- **All-resources-consumed across many resources:** any case where every available resource has total_demand == capacity becomes infeasible even if individual per-resource checks passed.
+
+**Cases that Still Fail (unchanged)**
+- **Unknown resource referenced:** request asks for a resource not in availability → infeasible. 
+- **Demand exceeds capacity:** any resource where total_demand > capacity → infeasible. 
+- **Malformed request:** non-dict requests → raise ValueError.
+
+**Ambiguous / Floating-point Considerations**
+- **Near-equality floats:** sums that are numerically within machine precision of capacity may flip depending on whether you treat equality strictly or allow an epsilon. Decide whether to use a small tolerance for float comparisons and add tests accordingly.
+
+**Tests to Update**
+- Modify expectations for: `test_basic_feasible_single_resource`, `test_exact_capacity_multi_resource`, `test_fractional_requests`, `test_zero_capacity_zero_request` in test_solution.py — these should now expect False. 
+- Add a positive-case test that ensures feasibility when at least one resource remains unused (e.g., add a small `disk` resource unused).
+
+If you want, I can implement the code change, update the tests, and run pytest now. Which tolerance policy for floats do you prefer (strict equality or small epsilon)?
+
+run pytho test is it pass
+
+Ran Python tests
+Running the test suite now to verify all tests pass.
+
+ PYTHONPATH=src pytest -q
+All tests passed: 11 passed.
+
+GPT-5 mini • 1x

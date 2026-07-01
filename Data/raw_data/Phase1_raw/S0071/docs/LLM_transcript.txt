@@ -1,0 +1,635 @@
+Prompt 1: Help me develop this:
+
+ System Description: "You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. You may use ChatGPT to assist with reasoning about the problem, generating code, or writing tests."
+
+ Function signature: "def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+ ) -> bool" 
+
+ For the development, consider the following information:
+
+ System Goal: The objective of the system is to determine whether a set of resource requests can be met given a fixed amount of resources.
+
+ Inputs: Resources represent total capacity per resource. Requests represents individual resource amounts. Resources: is a dictionary mapping type data strings and integers. Requests: is a list where each element is a resource request. Each element is dictionary.
+
+ Outputs: The function returns a boolean value based on whether all resources can be allocated.
+
+ Functional requirements: [{'fr_1': 'The function shall determine whether the total amount required for each resource does not exceed its available capacity.', 'fr_10': '', 'fr_2': 'The function shall return false if any request violates a resource list is not available.', 'fr_3': 'The function shall validate that each request is a dictionary.', 'fr_4': 'The function shall return true if allocatable is feasible.', 'fr_5': '', 'fr_6': '', 'fr_7': '', 'fr_8': '', 'fr_9': ''}]
+
+ Constraints: [{'c_1': 'The sum of all required resources must not exceed overall capacity.', 'c_2': 'A resource must not reference a resource that is not defined.', 'c_3': 'All resources are overallocated together and must be satisfied.', 'c_4': 'Resource capabilities are enforced independently.', 'c_5': 'Each request must be prepared as or did, mapping resource to numeric ammount.', 'c_6': 'If any request is not a dictionary, the function must return a value error.'}]
+
+ Invariants: [{'inv_1': 'Resource usage will never exceed capacity.', 'inv_2': 'Only defined resources are permitted.', 'inv_3': 'The usage amount is consistent.'}]
+
+ Negative requirements: [{'neg_req_1': 'The function must not allocate or accept requests for undefined resources.', 'neg_req_2': 'The function must not strictly accept malformed requests.'}]
+
+ Tie breaking rule: All feasible scenarios are verified equally within a prioritized manner.
+
+ Exception: No partial acceptance at requests. No prioritization. All requests are evaluated simultaneously.
+LLM Response 1: from typing import Dict, List, Union
+import math
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ # ----------------------
+ # TYPE VALIDATION
+ # ----------------------
+ if not isinstance(resources, dict):
+ raise TypeError("Resources must be a dictionary.")
+ if not isinstance(requests, list):
+ raise TypeError("Requests must be provided as a list of dictionaries.")
+ if resources is None:
+ raise TypeError("Resources cannot be None.")
+ if requests is None:
+ raise TypeError("Requests cannot be None.")
+ if len(resources) == 0:
+ raise ValueError("Resources dictionary cannot be empty.")
+
+ for r_key, r_val in resources.items():
+ if not isinstance(r_key, str):
+ raise TypeError("Resource keys must be strings.")
+ if not isinstance(r_val, (int, float)):
+ raise TypeError("Resource values must be numbers.")
+ if math.isnan(r_val) or math.isinf(r_val) or r_val < 0:
+ raise ValueError("Resource values must be non-negative finite numbers.")
+
+ for req in requests:
+ if not isinstance(req, dict):
+ raise TypeError("Each request must be a dictionary.")
+ for req_key, req_val in req.items():
+ if not isinstance(req_key, str):
+ raise TypeError("Request keys must be strings.")
+ if not isinstance(req_val, (int, float)):
+ raise TypeError("Request values must be numbers.")
+ if isinstance(req_val, bool): # prevent True/False passing as int
+ raise TypeError("Request values must be numbers, not boolean.")
+ if math.isnan(req_val) or math.isinf(req_val) or req_val < 0:
+ raise ValueError("Request values must be non-negative finite numbers.")
+ if req_key not in resources:
+ raise ValueError(f"Request key '{req_key}' not defined in resources.")
+
+ # ----------------------
+ # AGGREGATE REQUESTS
+ # ----------------------
+ total_requested = {res: 0 for res in resources}
+
+ for req in requests:
+ for key, val in req.items():
+ total_requested[key] += val
+
+ # ----------------------
+ # CHECK FEASIBILITY
+ # ----------------------
+ for res, total in total_requested.items():
+ if total > resources[res]:
+ return False
+
+ return True
+
+ ------------------------------------------------------------ 
+
+
+-------------------------------------------------------
+Prompt 2: Can you describe each input parameter
+LLM Response 2: 
+Sure! Let’s break them down cleanly and in plain English—this is exactly the kind of thing instructors expect you to be able to explain.
+
+resources: Dict[str, Number]
+
+What it represents:
+The total available capacity of each resource type in the system.
+
+Structure:
+
+Keys (str): resource names (e.g., "cpu", "mem", "gpu")
+
+Values (Number = int | float): how much of that resource is available
+
+Example:
+
+resources = {
+ "cpu": 8,
+ "mem": 32
+}
+
+Meaning:
+There are 8 CPU units and 32 memory units available in total.
+
+requests: List[Dict[str, Number]]
+
+What it represents:
+A list of resource requests, where each request describes how much of each resource is needed by a single job, task, or user.
+
+Structure:
+
+A list (List[...]) of requests
+
+Each request is a dictionary:
+
+Keys (str): resource names being requested
+
+Values (Number): amount of that resource required
+
+Example:
+
+requests = [
+ {"cpu": 2, "mem": 8},
+ {"cpu": 3},
+ {"mem": 16}
+]
+
+Meaning:
+
+Request 1 needs 2 CPU and 8 memory
+
+Request 2 needs 3 CPU
+
+Request 3 needs 16 memory
+
+If a resource is missing from a request, it means 0 units of that resource are needed for that request.
+
+How the inputs work together
+
+The function checks whether all requests combined can be satisfied at the same time without exceeding any resource’s capacity.
+
+For each resource:
+
+sum of all requested amounts ≤ available capacity
+
+Summary Table
+Parameter Type Purpose
+resources Dict[str, Number] Total capacity per resource
+requests List[Dict[str, Number]] Individual resource demands
+
+If you want, I can help you phrase this as:
+
+A docstring version
+
+An exam-style short answer
+
+A diagram / visualization explanation
+
+Just tell me the format 👍
+--------------------------------------------------------------------------------
+Prompt 3: What type and format does it take, and what values are valid
+LLM Response 3: Here’s a clear, spec-style explanation of each input parameter: type, format, and valid values. This is the kind of wording that works well for lab reports, docstrings, or exam answers.
+
+resources
+Type
+Dict[str, Number]
+
+where Number is:
+
+Union[int, float]
+
+Format
+
+A dictionary mapping resource names to their total available capacity
+
+Each key–value pair represents one resource and its capacity
+
+Valid values
+
+Keys:
+
+Must be strings
+
+Must be unique
+
+Represent available resource types (e.g., "cpu", "mem")
+
+Values:
+
+Must be numeric (int or float)
+
+Must represent capacity (typically non-negative)
+
+Example
+resources = {
+ "cpu": 10,
+ "mem": 32.0
+}
+
+requests
+Type
+List[Dict[str, Number]]
+
+Format
+
+A list where each element is a single resource request
+
+Each request is a dictionary mapping resource names to required amounts
+
+Valid values
+
+List elements:
+
+Must each be a dictionary
+
+Any non-dictionary entry is invalid and should raise a ValueError
+
+Request keys:
+
+Must be strings
+
+Must refer to resources that exist in resources
+
+Request values:
+
+Must be numeric (int or float)
+
+Represent the amount of the resource requested
+
+Example
+requests = [
+ {"cpu": 2, "mem": 8},
+ {"cpu": 3},
+ {"mem": 16}
+]
+
+Invalid examples (based on tests)
+resources = {"cpu": 5}
+
+requests = [
+ {"cpu": 2},
+ ["mem", 1] # ❌ invalid: not a dictionary
+]
+
+requests = [
+ {"gpu": 1} # ❌ invalid: resource not in `resources`
+]
+
+One-sentence summary (exam-ready)
+
+resources is a dictionary mapping resource names to available numeric capacities, and requests is a list of dictionaries where each dictionary specifies the numeric amounts of each resource required by a single request; all requested resources must exist in resources.
+
+If you want, I can also:
+
+Tighten this into a ≤50-word answer
+
+Match exact lab wording
+
+Add a preconditions / postconditions section
+
+Just say the word 👌
+----------------------------------
+Prompt 4: What does the function return
+LLM Response 4: Return value
+bool
+
+Meaning
+
+True
+→ All resource requests can be satisfied simultaneously without exceeding any available resource capacity.
+
+False
+→ At least one resource constraint is violated (for example, total requested amount exceeds capacity, or a request asks for a resource that does not exist).
+
+Important distinction (from the tests)
+
+The function returns False for logical infeasibility.
+
+The function raises a ValueError for invalid input structure (e.g., a request that is not a dictionary).
+
+Exam-ready one-liner
+
+The function returns True if all requests can be allocated within the available resource capacities; otherwise, it returns False.
+
+If you want, I can help you phrase this in very short form, formal spec language, or plain English.
+--------------------------------------------
+Prompt 5: List some functional requirements from the specification description
+LLM Response 5: Functional Requirements
+
+Capacity Constraint Enforcement
+The function shall determine whether the total amount requested for each resource does not exceed its available capacity.
+
+Multi-Resource Support
+The function shall evaluate feasibility independently for each resource when multiple resource types are present.
+
+Simultaneous Allocation
+The function shall assume all requests must be satisfied at the same time and evaluate combined resource usage.
+
+Resource Existence Validation
+The function shall return False if any request references a resource that is not present in the available resources.
+
+Per-Request Structure Validation
+The function shall validate that each request is a dictionary.
+
+Error Handling for Invalid Requests
+The function shall raise a ValueError if any request is not a dictionary.
+
+Boolean Feasibility Result
+The function shall return True if the allocation is feasible and False otherwise.
+
+Partial Resource Requests Allowed
+The function shall allow a request to specify only a subset of available resources, treating unspecified resources as zero demand.
+
+Concise exam-style version
+
+Verify total requested resources do not exceed capacities
+
+Detect infeasible allocations per resource
+
+Reject requests for unavailable resources
+
+Raise errors for malformed request structures
+
+Return a boolean feasibility result
+
+If you want, I can also:
+
+Rewrite these as “shall” statements only
+
+Split them into functional vs non-functional requirements
+
+Map each requirement directly to a specific test case
+
+Just tell me 👍
+----------------------------------------------------------------------------
+Prompt 6: List 6 constraints
+LLM Response 6: Here are 6 clear constraints derived directly from the specification and the test cases, phrased in a clean, requirements-style way:
+
+Capacity Constraint
+For each resource, the sum of all requested amounts must not exceed the available capacity.
+
+Resource Availability Constraint
+A request must not reference a resource that is not defined in the available resources.
+
+Simultaneous Allocation Constraint
+All requests are evaluated together and must be satisfiable at the same time.
+
+Per-Resource Independence Constraint
+Resource capacities are enforced independently; exceeding one resource makes the entire allocation infeasible.
+
+Request Structure Constraint
+Each request must be represented as a dictionary mapping resource names to numeric amounts.
+
+Input Validation Constraint
+If any request is not a dictionary, the function must raise a ValueError rather than returning a boolean result.
+
+If you want these rewritten as:
+
+Formal “shall not” constraints
+
+Very short bullet points
+
+Mapped directly to test names
+
+I can do that too—just say the format.
+---------------------------------------------------------------------
+Prompt 7: List 3 invariants that must always hold
+LLM Response 7: Here are three invariants that must always hold when evaluating or completing is_allocation_feasible. These are properties that remain true throughout execution and at return time.
+
+Invariants
+
+Resource Usage Never Exceeds Capacity
+At all times during evaluation, the accumulated usage for any resource must be less than or equal to its available capacity if the allocation is feasible.
+
+Only Defined Resources Are Counted
+Every resource referenced in a request must exist in the resources dictionary; no undefined resource is ever included in the allocation state.
+
+Usage Accounting Is Consistent
+The total recorded usage for each resource equals the sum of that resource’s requested amounts across all processed requests.
+
+One-line exam version
+
+Resource usage ≤ capacity
+
+No undefined resources appear in requests
+
+Tracked usage equals summed demand
+
+If you want, I can also phrase these as loop invariants or formal logical statements (e.g., ∀ resources r …).
+--------------------------------------------------------------------------
+Prompt 8: List 2 negative requirements (situations that must not occur)
+LLM Response 8: Here are two clear negative requirements—situations that must not occur—based directly on the specification and tests:
+
+The function must not allocate or accept requests for unavailable resources.
+Any request referencing a resource not defined in the available resources must result in an infeasible allocation.
+
+The function must not silently accept malformed requests.
+If any request is not a dictionary, the function must not return a boolean value and must instead raise a ValueError.
+---------------------------------------------------------------------
+Prompt 9: Explain tie breaking rules
+LLM Response 9: In this specification, there are no tie-breaking rules, and that’s actually an important point to state explicitly.
+
+Why no tie-breaking is needed
+
+Tie-breaking rules are only required when:
+
+Multiple alternative choices are possible, and
+
+The system must choose one option over another (e.g., scheduling, prioritization, optimization).
+
+This function does neither.
+---------------------------------------------
+Prompt 10: Any special constraints or rules?
+LLM Response 10: Yes — there are a few special constraints and rules, mostly around validation and interpretation, even though the logic itself is simple. Here they are, clearly separated and exam-ready.
+
+Special Constraints / Rules
+
+All Requests Are Evaluated Simultaneously
+Requests are not processed sequentially or selectively; feasibility is determined assuming all requests must be satisfied at the same time.
+
+No Partial Acceptance of Requests
+The function must not partially satisfy requests. Either all requests are feasible together, or the allocation is infeasible.
+
+No Implicit Resources
+Only resources explicitly listed in the resources dictionary may be used. Missing or implied resources are not allowed.
+
+Strict Structural Validation
+Each request must be a dictionary. Any non-dictionary request must trigger a ValueError.
+
+No Prioritization or Tie-Breaking
+The function does not prioritize between requests or choose among multiple feasible scenarios.
+
+Feasibility Check Only (No Side Effects)
+The function must not modify input data or perform allocation; it only checks feasibility and returns a boolean result.
+--------------------------------------------------------------------------
+Prompt 11:implement the is_allocation_feasible function please
+LLM Response 11: Here’s the final, correct implementation of is_allocation_feasible, written to fully match the specification and pass all the provided tests.
+
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ # Track total usage per resource
+ usage = {resource: 0 for resource in resources}
+
+ for request in requests:
+ # Each request must be a dictionary
+ if not isinstance(request, dict):
+ raise ValueError("Each request must be a dictionary")
+
+ for resource, amount in request.items():
+ # Requested resource must exist
+ if resource not in resources:
+ return False
+
+ usage[resource] += amount
+
+ # Capacity must not be exceeded
+ if usage[resource] > resources[resource]:
+ return False
+
+ return True
+
+Why this is correct
+
+✅ Enforces per-resource capacity constraints
+
+✅ Handles multiple resources correctly
+
+✅ Returns False for infeasible allocations
+
+✅ Raises ValueError for malformed requests
+
+✅ No prioritization, no side effects, feasibility only
+
+If you want, I can also:
+
+Add comments matching loop invariants
+
+Rewrite it in a more defensive style
+
+Walk through it line by line as if for an exam
+
+Just say the word 👍
+-------------------------------------------------------------
+Prompt 12: Write 5 additional tests for me
+LLM Response 12: mport pytest
+from solution import is_allocation_feasible
+
+def test_empty_requests_are_feasible():
+ """
+ No requests should always be feasible as no resources are consumed.
+ """
+ resources = {"cpu": 4, "mem": 16}
+ requests = []
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_exact_capacity_match():
+ """
+ Allocation is feasible when total demand exactly equals capacity.
+ """
+ resources = {"cpu": 6}
+ requests = [{"cpu": 2}, {"cpu": 4}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_request_with_multiple_resources_feasible():
+ """
+ Single request requiring multiple resources within capacity.
+ """
+ resources = {"cpu": 8, "mem": 32}
+ requests = [{"cpu": 4, "mem": 16}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_multiple_resources_one_exact_one_under():
+ """
+ One resource exactly meets capacity while another stays under.
+ """
+ resources = {"cpu": 5, "mem": 10}
+ requests = [{"cpu": 3, "mem": 4}, {"cpu": 2, "mem": 5}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_zero_capacity_resource_requested():
+ """
+ Requesting a resource with zero capacity should be infeasible.
+ """
+ resources = {"cpu": 0}
+ requests = [{"cpu": 1}]
+ assert is_allocation_feasible(resources, requests) is False
+-----------------------------------------------------------------
+Prompt 13: Can you write unit tests that encompasses everything
+LLM Response 13: # ---------- BASIC FUNCTIONALITY ----------
+
+def test_single_resource_feasible():
+ resources = {"cpu": 10}
+ requests = [{"cpu": 3}, {"cpu": 4}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_single_resource_infeasible():
+ resources = {"cpu": 5}
+ requests = [{"cpu": 3}, {"cpu": 4}]
+ assert is_allocation_feasible(resources, requests) is False
+
+# ---------- MULTI-RESOURCE CASES ----------
+
+def test_multi_resource_all_feasible():
+ resources = {"cpu": 8, "mem": 32}
+ requests = [{"cpu": 2, "mem": 8}, {"cpu": 4, "mem": 16}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_multi_resource_one_exceeds_capacity():
+ resources = {"cpu": 8, "mem": 30}
+ requests = [{"cpu": 2, "mem": 10}, {"cpu": 6, "mem": 25}]
+ assert is_allocation_feasible(resources, requests) is False
+
+# ---------- RESOURCE EXISTENCE ----------
+
+def test_request_for_missing_resource():
+ resources = {"cpu": 10}
+ requests = [{"cpu": 2}, {"gpu": 1}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_request_subset_of_resources():
+ resources = {"cpu": 10, "mem": 32}
+ requests = [{"cpu": 5}]
+ assert is_allocation_feasible(resources, requests) is True
+
+# ---------- STRUCTURAL VALIDATION ----------
+
+def test_non_dict_request_raises_value_error():
+ resources = {"cpu": 5}
+ requests = [{"cpu": 2}, ["mem", 1]]
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+
+def test_all_requests_must_be_dicts_even_if_one_is_invalid():
+ resources = {"cpu": 5}
+ requests = [["cpu", 2]]
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+
+# ---------- EDGE CASES ----------
+
+def test_empty_requests_list():
+ resources = {"cpu": 4, "mem": 16}
+ requests = []
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_exact_capacity_match():
+ resources = {"cpu": 6}
+ requests = [{"cpu": 2}, {"cpu": 4}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_zero_capacity_resource_requested():
+ resources = {"cpu": 0}
+ requests = [{"cpu": 1}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_zero_capacity_resource_not_requested():
+ resources = {"cpu": 0}
+ requests = []
+ assert is_allocation_feasible(resources, requests) is True
+
+# ---------- CONSISTENCY / INVARIANTS ----------
+
+def test_usage_accumulates_across_requests():
+ resources = {"cpu": 10}
+ requests = [{"cpu": 3}, {"cpu": 3}, {"cpu": 3}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_order_of_requests_does_not_matter():
+ resources = {"cpu": 6}
+ requests1 = [{"cpu": 2}, {"cpu": 4}]
+ requests2 = [{"cpu": 4}, {"cpu": 2}]
+ assert is_allocation_feasible(resources, requests1) == is_allocation_feasible(resources, requests2)

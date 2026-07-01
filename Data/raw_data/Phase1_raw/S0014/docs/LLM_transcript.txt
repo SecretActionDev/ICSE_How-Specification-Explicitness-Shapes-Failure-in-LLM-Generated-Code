@@ -1,0 +1,304 @@
+## Student Name: Richard Balroop
+## Student ID: 216906349
+
+Prompt 1: "
+Why does this code produce a type error:
+def test_non_dict_request_raises():
+ # Non-Dict Request Raises Error
+ # Constraint: structural validation
+ # Reason: request must be a dict
+ resources = {'cpu': 5}
+ requests = [{'cpu': 2}, ['mem', 1]] # malformed request
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+
+TypeError: list indices must be integers or slices, not str
+## Student Name: Richard Balroop
+## Student ID: 216906349
+
+"""
+Stub file for the is allocation feasible exercise.
+
+Implement the function is_allocation_feasible to Determine whether a set of resource requests can be satisfied 
+given limited capacities. Take int account any possible constraints. See the lab handout
+for full requirements.
+"""
+ 
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+
+ """
+ flag = True
+ for i in range(len(requests)):
+ if requests[i] is None or not isinstance(requests[i], dict):
+ flag = False
+ if not confirm_type_of_key_and_value(requests[i], str, Number):
+ flag = False
+ if not confirm_type_of_key_and_value(resources, str, Number):
+ flag = False
+ 
+ total_requests = build_total_request(requests)
+ for key in total_requests:
+ if key not in resources or total_requests[key] > resources[key]:
+ flag = False
+ 
+ return flag
+
+ # TODO: Implement this function
+ # raise NotImplementedError("suggest_slots function has not been implemented yet")
+
+def confirm_type_of_key_and_value(dictionary, expected_key_type, expected_value_type):
+ flag = True
+ for key in dictionary:
+ if not isinstance(key, expected_key_type) or not isinstance(dictionary[key], expected_value_type):
+ flag = False
+ return flag
+ 
+def build_total_request(requests):
+ total_requests = {}
+ for request in requests:
+ for key in request:
+ if key in total_requests:
+ total_requests[key] += request[key]
+ else:
+ total_requests[key] = request[key]
+ return total_requests
+
+llm response: Because even though you notice a malformed request, you still pass it into confirm_type_of_key_and_value, and that function assumes it’s a dict.
+
+In your failing test:
+
+requests = [{'cpu': 2}, ['mem', 1]] # <- second item is a list
+
+Loop in is_allocation_feasible:
+
+if requests[i] is None or not isinstance(requests[i], dict):
+ flag = False # i=1 -> True, so flag becomes False
+if not confirm_type_of_key_and_value(requests[i], str, Number):
+ flag = False # BUT you still call it!
+
+Now inside confirm_type_of_key_and_value(dictionary= ['mem', 1], ...):
+
+for key in dictionary: # key becomes 'mem' then 1
+ dictionary[key] # BOOM when key == 'mem'
+
+A list can only be indexed by integers (0, 1, …), not by a string like 'mem', so you get:
+
+TypeError: list indices must be integers or slices, not str
+
+What you intended (raise ValueError for non-dict requests)
+Fix: bail out early (raise immediately)
+
+If your requirement is “malformed request raises ValueError”, do this:
+
+def is_allocation_feasible(resources, requests) -> bool:
+ if not isinstance(resources, dict):
+ raise ValueError("resources must be a dict")
+ if not isinstance(requests, list):
+ raise ValueError("requests must be a list")
+
+ for req in requests:
+ if not isinstance(req, dict):
+ raise ValueError("each request must be a dict")
+ if not confirm_type_of_key_and_value(req, str, (int, float)):
+ raise ValueError("invalid key/value types in request")
+
+ if not confirm_type_of_key_and_value(resources, str, (int, float)):
+ raise ValueError("invalid key/value types in resources")
+
+ total_requests = build_total_request(requests)
+ for k, v in total_requests.items():
+ if k not in resources or v > resources[k]:
+ return False
+
+ return True
+
+Minimal patch to your existing structure
+
+If you want to keep flag, at least skip the helper when it’s not a dict:
+
+for req in requests:
+ if req is None or not isinstance(req, dict):
+ raise ValueError("each request must be a dict")
+ if not confirm_type_of_key_and_value(req, str, (int, float)):
+ raise ValueError("invalid request types")
+
+Extra: your test function location
+
+That test_non_dict_request_raises() should be in tests/test_solution.py, not inside src/solution.py, and you need:
+
+import pytest
+
+But the TypeError you asked about is specifically due to indexing a list with 'mem'.
+
+If you tell me whether the lab expects “return False” vs “raise ValueError” for malformed inputs, I can match the exact behavior to the rubric.
+
+Prompt 2: Now, I get this:
+test_solution.py ...F [100%]
+
+======================================================================= FAILURES =======================================================================
+_____________________________________________________________ test_non_dict_request_raises _____________________________________________________________
+
+ def test_non_dict_request_raises():
+ # Non-Dict Request Raises Error
+ # Constraint: structural validation
+ # Reason: request must be a dict
+ resources = {'cpu': 5}
+ requests = [{'cpu': 2}, ['mem', 1]] # malformed request
+ with pytest.raises(ValueError):
+> is_allocation_feasible(resources, requests)
+
+test_solution.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+solution.py:36: in is_allocation_feasible
+ if not confirm_type_of_key_and_value(requests[i], str, Number):
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+dictionary = ['mem', 1], expected_key_type = <class 'str'>, expected_value_type = typing.Union[int, float]
+
+ def confirm_type_of_key_and_value(dictionary, expected_key_type, expected_value_type):
+ flag = True
+ for key in dictionary:
+> if not isinstance(key, expected_key_type) or not isinstance(dictionary[key], expected_value_type):
+ ^^^^^^^^^^^^^^^
+E TypeError: list indices must be integers or slices, not str
+
+solution.py:57: TypeError
+=============================================================== short test summary info ================================================================
+FAILED test_solution.py::test_non_dict_request_raises - TypeError: list indices must be integers or slices, not str
+============================================================= 1 failed, 3 passed in 0.04s ==============================================================
+(.venv) richard_balroop@Richards-MacBook-Pro src % 
+This is my updated code:
+## Student Name: Richard Balroop
+## Student ID: 216906349
+
+"""
+Stub file for the is allocation feasible exercise.
+
+Implement the function is_allocation_feasible to Determine whether a set of resource requests can be satisfied 
+given limited capacities. Take int account any possible constraints. See the lab handout
+for full requirements.
+"""
+ 
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+
+ """
+ flag = True
+ for i in range(len(requests)):
+ if requests[i] is None or not isinstance(requests[i], dict):
+ flag = False
+ if not confirm_type_of_key_and_value(requests[i], str, Number):
+ flag = False
+ if not confirm_type_of_key_and_value(resources, str, Number):
+ flag = False
+ 
+ if flag:
+ total_requests = build_total_request(requests)
+ for key in total_requests:
+ if key not in resources or total_requests[key] > resources[key]:
+ flag = False
+ 
+ return flag
+ 
+--------------------------------------------------
+llm response 2: "You’re still getting the TypeError for the same reason as before: even when a request is not a dict, you still call:
+
+confirm_type_of_key_and_value(requests[i], str, Number)
+
+So when requests[i] is ['mem', 1], your helper tries to do dictionary['mem'] and crashes before you ever return or raise.
+
+Also, your test expects a ValueError, but your function currently just sets flag = False and returns False. So you need to raise when the input structure is invalid.
+
+Minimal fix (matches your test: raise ValueError on malformed request)
+
+Change your loop to “validate then raise immediately”:
+
+def is_allocation_feasible(resources, requests) -> bool:
+ # validate resources container
+ if resources is None or not isinstance(resources, dict):
+ raise ValueError("resources must be a dict")
+
+ if not confirm_type_of_key_and_value(resources, str, (int, float)):
+ raise ValueError("invalid resource key/value types")
+
+ # validate requests container
+ if requests is None or not isinstance(requests, list):
+ raise ValueError("requests must be a list")
+
+ for req in requests:
+ if req is None or not isinstance(req, dict):
+ raise ValueError("each request must be a dict")
+ if not confirm_type_of_key_and_value(req, str, (int, float)):
+ raise ValueError("invalid request key/value types")
+
+ # feasibility check
+ total_requests = build_total_request(requests)
+ for key, amount in total_requests.items():
+ if key not in resources or amount > resources[key]:
+ return False
+
+ return True
+
+And update your helper to use concrete runtime types (not typing.Union):
+
+def confirm_type_of_key_and_value(dictionary, expected_key_type, expected_value_type):
+ for key, value in dictionary.items():
+ if not isinstance(key, expected_key_type) or not isinstance(value, expected_value_type):
+ return False
+ return True
+
+Why you must change Number here
+
+Number = Union[int, float] is a typing object; isinstance(x, Number) is not what you want. Use (int, float) for runtime checks.
+
+If you insist on keeping your “flag” style
+
+At minimum, guard the helper call:
+
+for i in range(len(requests)):
+ if requests[i] is None or not isinstance(requests[i], dict):
+ raise ValueError("each request must be a dict")
+ if not confirm_type_of_key_and_value(requests[i], str, (int, float)):
+ raise ValueError("invalid request types")
+
+Bottom line
+
+Your code fails because you call the dict-checking helper on a list.
+
+Your test fails because you don’t raise ValueError for malformed inputs.
+
+Also: don’t use Number in isinstance; use (int, float).
+
+If you paste the top of tests/test_solution.py (especially what it expects for invalid resources/requests), I can match the exact raising/returning behavior to every test.

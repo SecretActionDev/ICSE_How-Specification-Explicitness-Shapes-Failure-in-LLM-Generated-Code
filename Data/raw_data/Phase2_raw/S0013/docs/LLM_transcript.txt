@@ -1,0 +1,153 @@
+Prompt 1: Help me update this code for this new requriementsYou are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. 
+
+new requrement: At least one resource must remain unallocated after assignment. This requirement applies in addition to all previously described behavior. An allocation that satisfies all other conditions but consumes all available resources is no longer valid. Update your solution, tests and documents to incorporate this requirement.
+
+, , 
+ ## Student Name: James Prime
+## Student ID: 215028657
+
+"""
+Stub file for the is allocation feasible exercise.
+
+Implement the function `is_allocation_feasible` to Determine whether a set of resource requests can be satisfied 
+given limited capacities. Take int account any possible constraints. See the lab handout
+for full requirements.
+"""
+ 
+from typing import Dict, List, Union
+from collections import Counter
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+
+ """
+ 
+ # make count
+ total_requests: Counter[str] = Counter()
+
+ for req in requests:
+ if not isinstance(req, dict):
+ raise ValueError(f"Expected dict in requests, got {type(req)}: {req}")
+ for res, count in req.items():
+ total_requests[res] += count
+
+ # check count, if total is more for that resource return false
+ for res, total in total_requests.items():
+ if total > resources.get(res, 0):
+ return False
+
+ return True
+ 
+LLM Response 1: from typing import Dict, List, Union
+from collections import Counter
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ New requirement: At least one unit of some resource must remain unallocated after assignment.
+
+ Args:
+ resources : Dict[str, Number]
+ Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]]
+ List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ bool
+ True if the allocation is feasible and at least one unit of some resource remains unallocated,
+ False otherwise.
+ """
+ 
+ # Sum up total requests for each resource
+ total_requests: Counter[str] = Counter()
+ for req in requests:
+ if not isinstance(req, dict):
+ raise ValueError(f"Expected dict in requests, got {type(req)}: {req}")
+ for res, count in req.items():
+ total_requests[res] += count
+
+ # Check if any request exceeds resource capacity
+ for res, total in total_requests.items():
+ if total > resources.get(res, 0):
+ return False # infeasible
+
+ # Check new requirement: at least one resource must remain unallocated
+ for res, capacity in resources.items():
+ used = total_requests.get(res, 0)
+ if used < capacity:
+ return True # feasible, some resource has leftover
+ return False # all resources fully consumed
+
+ ------------------------------------------------------------ 
+Prompt 2: 
+Restate this requirement:
+
+"At least one resource must remain unallocated after assignment. This requirement applies in addition to all 
+previously described behavior.
+ An allocation that satisfies all other conditons must consume all available resources is no longer valid."
+
+LLM Response 2: "At least one resource must remain unallocated after all assignments,
+and any allocation that uses all available resources while meeting other conditions is invalid."
+
+Prompt 3:
+given the following solution def is_allocation_feasible( resources: Dict[str, Number], requests: List[Dict[str, Number]] total_requests: 
+Counter[str] = Counter() for req in requests: if not isinstance(req, dict): raise ValueError(f"Expected dict in requests,
+ got {type(req)}: {req}") for res, count in req.items(): total_requests[res] += count # check count, if total is more for that resource return false 
+ for res, total in total_requests.items(): if total > resources.get(res, 0): return False 
+ 
+ how would i complete the requested new requirement? 
+i can't just setup the checkcount to be >= Else it'd fail resource: cpu 10 ram 1 request cpu 10 it should pass that
+
+To meet the new requirement—"At least one resource must remain unallocated after assignment"—you need to ensure that after all resource requests are fulfilled, at least one resource still has remaining capacity. To do this, you should check that the total allocated resources for each resource type do not consume all of that resource's availability.
+
+LLM Response 3: Here’s how you can modify your is_allocation_feasible function:
+
+from collections import Counter
+from typing import Dict, List
+from numbers import Number
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+
+ total_requests: Counter[str] = Counter()
+
+ # Step 1: Accumulate the total requests
+ for req in requests:
+ if not isinstance(req, dict):
+ raise ValueError(f"Expected dict in requests, got {type(req)}: {req}")
+ for res, count in req.items():
+ total_requests[res] += count
+
+ # Step 2: Check if any resource exceeds its available quantity
+ for res, total in total_requests.items():
+ if total > resources.get(res, 0):
+ return False # A request exceeds available resources
+
+ # Step 3: Ensure that at least one resource remains unallocated
+ for res, available in resources.items():
+ allocated = total_requests.get(res, 0)
+ if available - allocated > 0:
+ return True # Found at least one unallocated resource
+
+ return False # No resources remain unallocated

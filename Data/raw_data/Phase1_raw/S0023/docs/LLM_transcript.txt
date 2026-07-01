@@ -1,0 +1,227 @@
+## Student Name: Isaiah Gocool
+## Student ID: 218918052
+
+Prompt 1: 
+In the instructions it says:
+
+## 4. Run All Tests
+
+Navigate to the folder containing the files and run:
+
+```bash
+pytest
+```
+
+Or with more detailed output:
+
+```bash
+pytest -v
+```
+
+---
+
+How do I run this on vscode? I am not using Linux, I am using windows
+
+LLM Response 1:
+Don't worry—even though the instructions show `bash` (which is a Linux/Mac terminal language), the actual command to run the tests is exactly the same on Windows!
+
+Here is exactly how to run those commands inside Visual Studio Code on your Windows machine, plus an easier, built-in way to do it.
+
+### Method 1: Using the VS Code Terminal (The Direct Way)
+
+VS Code has a built-in terminal that uses PowerShell or Command Prompt by default on Windows. You can run your `pytest` commands right there.
+
+1. **Open your project folder** in VS Code (File > Open Folder...).
+2. **Open the integrated terminal** by doing one of the following:
+* Press the keyboard shortcut: **`Ctrl` + ``**` (the backtick key, usually located above the Tab key).
+* Or, click **Terminal** in the top menu bar and select **New Terminal**.
+
+3. **Check your folder:** Ensure the terminal path (the text before the blinking cursor) shows the folder where your test files are located. If it doesn't, you can use the `cd` command to navigate there (e.g., `cd path\to\your\folder`).
+4. **Run the command:** Type the following and press **Enter**:
+```powershell
+pytest
+
+```
+
+*(Or type `pytest -v` if you want the more detailed output).*
+
+---
+
+### Method 2: Using the VS Code Testing Tab (The Visual Way)
+
+Since you are using VS Code, you can skip the terminal entirely and use its excellent built-in visual interface for testing.
+
+1. **Open the Testing View:** Look at the Activity Bar on the far left side of your VS Code window. Click on the icon that looks like a **chemistry beaker**.
+2. **Configure Python Tests:** If you haven't set it up yet, you'll see a button that says **Configure Python Tests**. Click it.
+3. **Select your framework:** A dropdown will appear at the top of the screen. Select **pytest**.
+4. **Select the folder:** Choose the directory containing your tests (often the `tests` folder or the root directory).
+5. **Run your tests:** Once configured, all your tests will appear in a list in the sidebar. You can click the **Play** button (a right-facing triangle) at the top of the Testing sidebar to run all of them at once.
+
+> **Note:** For either method to work, make sure you have `pytest` installed in your Python environment. If you get an error saying "pytest is not recognized as an internal or external command," you will need to install it by running `pip install pytest` in your terminal first.
+
+---
+
+Would you like me to walk you through setting up a Python virtual environment to make sure your `pytest` installation stays organized?
+
+--------------------------------------------------
+Prompt 2:
+I did pip install pytest, and just pytest in the terminal and it's still not working
+
+LLM Response 2:
+This is a very common hiccup when using Python on Windows! Don't worry, you didn't do anything wrong.
+
+When you get an error after typing `pytest` (usually saying it's "not recognized as an internal or external command"), it almost always means Windows doesn't know *where* to look for the `pytest` program, even though `pip` successfully installed it.
+
+Here is the quickest way to bypass this issue, along with a couple of things to check.
+
+### The Quickest Fix: Use the Python Module Command
+
+Instead of asking Windows to find `pytest` directly, you can ask Python to run it for you. Since Windows already knows where Python is, this works 99% of the time.
+
+In your VS Code terminal, run this exact command instead:
+
+```powershell
+python -m pytest
+
+```
+
+*(Or, for the detailed output, use: `python -m pytest -v`)*
+
+**Why this works:** The `-m` flag tells Python, "Hey, look through the modules you have installed, find the one called `pytest`, and run it."
+
+---
+
+### Why didn't `pytest` work on its own?
+
+There are usually two culprits for this on Windows and VS Code:
+
+**1. The Windows PATH Variable**
+When `pip` installs programs like `pytest`, it puts them in a special "Scripts" folder. If that folder isn't added to your Windows "Environment Variables" (specifically the `PATH`), your terminal simply can't "see" the command. Using `python -m pytest` safely ignores this problem.
+
+**2. Virtual Environment Mismatch**
+VS Code might be trying to be helpful by automatically using a "Virtual Environment" (a segmented, clean installation of Python just for this project), but you might have installed `pytest` to your global, main Python installation instead.
+
+**How to check your environment in VS Code:**
+
+1. Look at the **bottom-right corner** of your VS Code window.
+2. You should see a version number for Python (e.g., `3.12.1`). Click on it.
+3. A menu will pop up at the top of the screen asking you to **Select Interpreter**.
+4. Make sure you select the one labeled "Recommended" or the one where you remember installing your tools. If the terminal you have open doesn't match this environment, you might need to close the terminal (click the trash can icon) and open a new one (`Ctrl` + ```) so VS Code can load the correct settings.
+
+---
+
+Did `python -m pytest` successfully run your tests, or are you getting a different kind of error message now?
+
+--------------------------------------------------
+Prompt 3:
+Here is my code:
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+    resources: Dict[str, Number],
+    requests: List[Dict[str, Number]]
+) -> bool:
+    """
+    Determine whether a set of resource requests can be satisfied given limited capacities.
+
+    Args:
+        resources : Dict[str, Number], Mapping from resource name to total available capacity.
+        requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+    Returns:
+        True if the allocation is feasible, False otherwise.
+
+    """
+    # TODO: Implement this function
+    total_requested: Dict[str, Number] = {}
+
+    for request in requests:
+        if not isinstance(request, dict):
+            raise ValueError("Request is not a dictionary.")
+        
+        for name, amount in request.items():
+            if amount > 0:
+                total_requested[name] = total_requested.get(name, 0) + amount
+
+    for name, total_amount in total_requested.items():
+        if name not in resources or total_amount > resources[name]:
+            return False
+    
+    return True
+
+Write me 5 test cases for it
+
+LLM Response 3:
+Here are 5 test cases written for `pytest` that cover the standard scenarios, edge cases, and the specific error handling you built into your function.
+
+You can save this code in a file named `test_allocation.py` in the same folder as your main code.
+
+```python
+import pytest
+# Assuming your function is saved in a file named `allocation.py`
+# You would import it like this: 
+# from allocation import is_allocation_feasible 
+
+def test_feasible_allocation_under_capacity():
+ """Test 1: Requests are well within the available resource limits."""
+ resources = {"CPU": 10, "RAM": 32, "Disk": 100}
+ requests = [
+ {"CPU": 2, "RAM": 4},
+ {"CPU": 4, "RAM": 16, "Disk": 50},
+ {"CPU": 1}
+ ]
+ # Total needed: CPU=7, RAM=20, Disk=50. All within limits.
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_infeasible_allocation_exceeds_capacity():
+ """Test 2: Total requests exceed the available capacity of at least one resource."""
+ resources = {"CPU": 10, "RAM": 32}
+ requests = [
+ {"CPU": 6, "RAM": 20},
+ {"CPU": 5, "RAM": 10} 
+ ]
+ # Total needed: CPU=11 (exceeds 10), RAM=30 (within 32).
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_infeasible_request_for_missing_resource():
+ """Test 3: A request asks for a resource that doesn't exist in the resource pool."""
+ resources = {"CPU": 10, "RAM": 32}
+ requests = [
+ {"CPU": 2, "GPU": 1} # GPU is not in the available resources
+ ]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_empty_requests_list():
+ """Test 4: An empty list of requests should always be feasible."""
+ resources = {"CPU": 10, "RAM": 32}
+ requests = []
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_raises_value_error_on_invalid_request_type():
+ """Test 5: The function should raise a ValueError if a request is not a dictionary."""
+ resources = {"CPU": 10, "RAM": 32}
+ # The second item in the list is a string, not a dictionary
+ requests = [
+ {"CPU": 2},
+ "I need 4 CPUs please"
+ ]
+ 
+ # pytest.raises checks that the specific error is triggered
+ with pytest.raises(ValueError, match="Request is not a dictionary."):
+ is_allocation_feasible(resources, requests)
+
+```
+
+### Why these 5 tests?
+
+* **Test 1 & 2** are your "Happy Path" and "Sad Path" tests. They verify the core math of your function.
+* **Test 3** makes sure your function correctly identifies when a completely unknown resource is requested.
+* **Test 4** is an edge case. If no one asks for anything, the system should smoothly return `True` without breaking.
+* **Test 5** leverages a great `pytest` feature (`pytest.raises`) to guarantee your custom `ValueError` triggers exactly when it is supposed to.
+
+---
+
+Since we've got the tests written out, would you like me to show you how to read the output terminal once you run `python -m pytest` on this file?
+--------------------------------------------------

@@ -1,0 +1,94 @@
+from typing import List, Dict
+from datetime import datetime, timedelta
+
+def time_to_minutes(t: str) -> int:
+    try:
+        h, m = map(int, t.split(":"))
+        if not (0 <= h <= 23 and 0 <= m <= 59):
+            raise ValueError
+    except Exception:
+        raise ValueError(f"Invalid time format: {t}")
+    return h * 60 + m
+
+def minutes_to_time(m: int) -> str:
+    h, m = divmod(m, 60)
+    return f"{h:02d}:{m:02d}"
+
+def validate_date(day: str):
+    try:
+        datetime.strptime(day, "%Y-%m-%d")
+    except ValueError:
+        raise ValueError(f"Invalid date: {day}")
+
+def suggest_slots(events: List[Dict[str, str]], meeting_duration: int, day: str) -> List[str]:
+    # -----------------------------
+    # 1. Input validation
+    # -----------------------------
+    validate_date(day)
+
+    if meeting_duration <= 0:
+        raise ValueError("Meeting duration must be positive")
+    if meeting_duration % 30 != 0:
+        raise ValueError("Meeting duration must be a multiple of 30 minutes")
+    if meeting_duration < 30:
+        raise ValueError("Meeting duration must be at least 30 minutes")
+
+    WORK_START = 9*60
+    WORK_END = 17*60
+    LUNCH_START = 12*60
+    LUNCH_END = 13*60
+    SLOT_GRANULARITY = 15
+    BUFFER_AFTER_EVENT = 15
+
+    # -----------------------------
+    # 2. Normalize events
+    # -----------------------------
+    normalized_events = []
+    for ev in events:
+        if "start" not in ev or "end" not in ev:
+            raise ValueError("Event must have start and end")
+        start = max(time_to_minutes(ev["start"]), WORK_START)
+        end = min(time_to_minutes(ev["end"]), WORK_END)
+        if start >= end:
+            raise ValueError(f"Invalid event interval: {ev}")
+        normalized_events.append({"start": start, "end": end})
+
+    # Sort by start time
+    normalized_events.sort(key=lambda x: x["start"])
+
+    # -----------------------------
+    # 3. Generate potential slots
+    # -----------------------------
+    slots = []
+    current = WORK_START
+    while current + meeting_duration <= WORK_END:
+        # Skip lunch
+        if LUNCH_START <= current < LUNCH_END:
+            current = LUNCH_END
+            continue
+
+        # Ensure 15-min increments
+        if current % SLOT_GRANULARITY != 0:
+            current += SLOT_GRANULARITY - (current % SLOT_GRANULARITY)
+            continue
+
+        # Check conflicts
+        conflict = False
+        for ev in normalized_events:
+            ev_start = ev["start"]
+            ev_end = ev["end"] + BUFFER_AFTER_EVENT  # 15-min buffer after events
+            if current < ev_end and current + meeting_duration > ev_start:
+                conflict = True
+                break
+
+        if not conflict:
+            slots.append(minutes_to_time(current))
+
+        current += SLOT_GRANULARITY
+
+    # -----------------------------
+    # 4. Return sorted, unique slots
+    # -----------------------------
+    slots = sorted(list(set(slots)))
+    print(slots)
+    return slots

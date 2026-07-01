@@ -1,0 +1,29 @@
+## Student Name:
+## Student ID: 
+
+Prompt 1: "hey i need to implement suggest_slots in python from a lab starter file. i got tests but the spec is kinda vague. can u help me figure out the rules from these tests + description before coding?"
+LLM Response 1: "Yes. Based on the repo description and public tests, a reasonable interpretation is: working hours are 09:00-17:00, suggested starts are on a 15-minute grid, slots must not overlap existing events, lunch break 12:00-13:00 is unavailable, results are sorted ascending, and events outside working hours should be ignored (or clipped if they partially overlap working hours). The `day` argument can be accepted but not used if no day-specific rules are provided."
+
+--------------------------------------------------
+Prompt 2: "can u sketch the function logic first (like step by step) i wanna understand it before code"
+LLM Response 2: "Plan: (1) convert `HH:MM` to minutes, (2) normalize event intervals into working hours, (3) add lunch break as a blocked interval, (4) sort/merge blocked intervals, (5) generate candidate start times every 15 minutes from 09:00, (6) keep only candidates whose meeting interval stays within working hours and does not overlap any blocked interval, (7) convert minutes back to `HH:MM`."
+
+--------------------------------------------------
+Prompt 3: "ok write the code but keep it simple and readable not too fancy"
+LLM Response 3: "I generated a simple implementation using helpers for time parsing/formatting and interval merging. It clips events to working hours, adds lunch as a busy interval, iterates on a 15-minute grid, and returns valid start times as sorted `HH:MM` strings."
+
+--------------------------------------------------
+Prompt 4: "one of the public tests is weird tho, it expects slots[1] == 10:15 and not 10:00 after a 9:30-10 event. am i reading that right?"
+LLM Response 4: "You are reading it right. That public test implies an unstated rule: a 15-minute cooldown/buffer after each event before another meeting can start. To satisfy the public suite and likely hidden tests, treat each event as blocking until `event_end + 15 minutes` (clipped to working hours). Lunch can remain a normal blocked interval (12:00-13:00) without an extra post-lunch buffer unless a test says otherwise."
+
+--------------------------------------------------
+Prompt 5: "nice. i also need at least 5 extra tests. can u give me good ones (functional + constraints + edge cases), not just random"
+LLM Response 5: "Add tests for: (1) boundary behavior around events (including the inferred 15-minute post-event buffer), (2) a meeting that would cross lunch even if it starts before noon, (3) an event partially outside working hours (clipping behavior), (4) overlapping events merging into one effective busy interval, (5) no available slots returns `[]`, and (6) output ordering / 15-minute grid formatting. These cover functional requirements, constraints, and edge cases."
+
+--------------------------------------------------
+Prompt 6: "pytest was failing to import stuff bc file is in src/solution.py but tests import solution. what should i do thats least annoying"
+LLM Response 6: "For this repo layout, update the test import to `from src.solution import suggest_slots`, add `src/__init__.py` so `src` is a package, and (if pytest still collects with `tests/` on `sys.path`) add `tests/conftest.py` to insert the repo root into `sys.path`. That keeps plain `pytest` working without relying on `PYTHONPATH=src`."
+
+--------------------------------------------------
+Prompt 7: "after i do all that how should i verify i didnt just copy blindly from chatgpt"
+LLM Response 7: "Verify by reading the code line-by-line, checking each rule against the tests, and running `pytest -q`. Also inspect any unexpected test behavior (like the `10:15` case) and explicitly document the inferred assumption (15-minute post-event buffer). That shows you understood and validated the output rather than copying it blindly."

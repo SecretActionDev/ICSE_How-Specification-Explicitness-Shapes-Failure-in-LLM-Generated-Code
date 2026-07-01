@@ -1,0 +1,172 @@
+
+Prompt 1: from solution import suggest_slots says that there is no module named solution
+LLM Response 1: 
+--------------------------------------------------
+from solution import suggest_slots means:
+
+“There is a file called solution.py somewhere Python can see.”
+
+Python cannot find solution.py, so it throws:
+
+ModuleNotFoundError: No module named 'solution'
+
+✅ The correct setup (most likely what your lab expects)
+
+Your project should look like this:
+
+project_root/
+├── src/
+│ └── solution.py
+└── test_slots.py (or wherever you're importing from)
+
+But Python does NOT automatically look inside src/.
+
+Option 1 (Recommended for labs): run from src/
+
+If your test file is also in src/:
+
+src/
+├── solution.py
+└── test_slots.py
+
+Then this works ✅:
+
+from solution import suggest_slots
+
+And you run it like:
+
+cd src
+python test_slots.py
+
+Option 2: import using src.solution
+
+If your structure is:
+
+project_root/
+├── src/
+│ └── solution.py
+└── test_slots.py
+
+Then change the import to:
+
+from src.solution import suggest_slots
+
+And run from the project root:
+
+python test_slots.py
+
+👉 If this fails, make sure src/ contains an empty file named:
+
+__init__.py
+
+Option 3 (Quick & dirty, usually acceptable for labs)
+
+Move solution.py next to the file doing the import.
+
+project_root/
+├── solution.py
+└── test_slots.py
+
+Then:
+
+from solution import suggest_slots
+
+Works immediately ✅
+
+TL;DR
+
+Python isn’t mad at your code — it just can’t find the file.
+
+If you tell me:
+
+where solution.py is
+
+where the import line lives
+
+how you’re running the program
+
+I’ll give you the exact one-line fix for your setup.
+
+
+--------------------------------------------------
+
+Prompt 2: terminal provides Traceback: /cs/local/lib/python3.13/importlib/__init__.py:88: in import_module return _bootstrap._gcd_import(name[level:], package, level) ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ tests/test_solution.py:12: in <module> from solution import suggest_slots E ModuleNotFoundError: No module named 'solution'
+
+LLM Response 2: 
+
+Perfect, that traceback tells us exactly what’s happening 👌
+This is a pytest import-path issue, not your function.
+
+You’re running tests from tests/test_solution.py, and Python’s import path does not include src/ by default.
+
+What your setup almost certainly looks like
+project_root/
+├── src/
+│ └── solution.py
+└── tests/
+ └── test_solution.py
+
+And inside test_solution.py you have:
+
+from solution import suggest_slots
+
+Python looks in:
+
+tests/
+
+standard library
+
+site-packages
+
+❌ It does not look in src/
+
+✅ The correct, lab-safe fix (most common)
+1️⃣ Add __init__.py files
+
+Create empty files:
+
+src/__init__.py
+tests/__init__.py
+
+This makes them proper packages.
+
+2️⃣ Change the import in test_solution.py
+from src.solution import suggest_slots
+
+3️⃣ Run pytest from the project root
+pytest
+
+or
+
+python -m pytest
+
+✅ This is the clean, correct, and instructor-approved setup.
+
+🚫 What NOT to do (unless explicitly told)
+
+Don’t rename solution.py
+
+Don’t hardcode sys.path.append(...) unless the lab allows it
+
+Don’t run pytest from inside tests/
+
+🔍 Why this happens (quick intuition)
+
+Pytest imports test files like modules.
+Python only knows about directories that are:
+
+the current working directory
+
+packages (__init__.py)
+
+explicitly on PYTHONPATH
+
+Your src/ wasn’t one of those.
+
+If you want, paste:
+
+your exact directory tree
+
+how you’re running pytest
+
+and I’ll confirm this 100% — but I’m very confident this is the fix.

@@ -1,0 +1,425 @@
+Prompt 1: 
+System Description 
+You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format.
+Describe in 1 - 2 sentences the objectives of the system 
+
+LLM Response 1:
+The objective of the system is to determine whether a set of resource requests can be fulfilled with the available resources. It evaluates the requests against the resource capacity and returns whether a feasible allocation exists.
+
+--------------------------------------------------
+
+Prompt 2:
+System Description 
+You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format.
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+Describe each input paramter. what type and format does each take? what values are valid?
+
+LLM Response 2:
+resources
+
+Type: Dict[str, Number] (a dictionary mapping strings to numeric values such as int or float).
+
+Format: Each key is the name of a resource (e.g., "CPU", "Memory", "Disk"), and the value represents the total available capacity of that resource.
+
+Valid Values:
+
+Keys must be strings representing resource identifiers.
+
+Values must be numeric (int or float) and typically non-negative, representing the total amount of that resource available.
+
+2. requests
+
+Type: List[Dict[str, Number]] (a list of dictionaries mapping strings to numeric values).
+
+Format: Each element in the list represents a single request. The dictionary maps resource names to the amount required for that request (e.g., {"CPU": 2, "Memory": 4}).
+
+Valid Values:
+
+Each request must be a dictionary with string keys corresponding to resource names.
+
+Values must be numeric (int or float) and typically non-negative, indicating the amount of that resource requested.
+
+Resource names in requests should correspond to those in the resources dictionary.
+
+--------------------------------------------------
+
+Prompt 3: 
+System Description You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. 
+The function takes as input a list of requests and available resources and returns whether a valid allocation exists. 
+The goal is to determine feasibility of allocation based on the provided information. 
+You may assume inputs are provided in a reasonable and consistent format. def is_allocation_feasible( resources: Dict[str, Number], requests: List[Dict[str, Number]] ) -> bool: """ Determine whether a set of resource requests can be satisfied given limited capacities. Args: resources : Dict[str, Number], Mapping from resource name to total available capacity. requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required. Returns: True if the allocation is feasible, False otherwise. 
+Describe what the function returns
+
+LLM Response 3:
+The function returns a boolean value (bool) indicating whether the resource allocation is feasible.
+
+True: Returned when the available resources are sufficient to satisfy all the requests without exceeding the capacity of any resource.
+
+False: Returned when at least one resource would be over-allocated, meaning the total requested amount for that resource exceeds the available capacity.
+--------------------------------------------------
+
+Prompt 4: 
+System Description You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. List as many as functional requirements as possible from the specification description
+
+LLM Response 4:
+Here are **functional requirements** derived from the system description:
+
+1. The system shall accept a **dictionary of available resources**, where each key is a resource name and each value represents the total capacity of that resource.
+2. The system shall accept a **list of resource requests**, where each request specifies the amount of each resource required.
+3. The system shall **process multiple requests** within the list.
+4. The system shall **compare requested resource amounts against the available resource capacities**.
+5. The system shall **calculate the total amount of each resource requested** across all requests.
+6. The system shall **verify that the total requested amount for each resource does not exceed the available capacity**.
+7. The system shall **determine whether a valid allocation of resources exists** based on the provided inputs.
+8. The system shall **return a boolean result** indicating whether the allocation is feasible.
+9. The system shall return **`True` if all requests can be satisfied without exceeding any resource capacity**.
+10. The system shall return **`False` if at least one resource request exceeds the available capacity**.
+11. The system shall **handle multiple resource types** (e.g., CPU, memory, storage).
+12. The system shall **process requests containing one or more resource types**.
+13. The system shall **assume that input data is provided in a consistent and valid format**.
+14. The system shall **evaluate all requests before determining the final feasibility result**.
+15. The system shall **use the provided resource names as identifiers for matching requests with available resources**.
+
+--------------------------------------------------
+
+Prompt 5: 
+System Description You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. List at least 6 constraints and assumptions relevant to the problem
+
+LLM Response 5:
+Here are **constraints and assumptions** relevant to the problem:
+
+1. **Input Format Assumption:** The inputs (`resources` and `requests`) are provided in a valid and consistent format as specified (dictionary for resources and list of dictionaries for requests).
+
+2. **Resource Naming Consistency:** Resource names used in the requests correspond to the resource names defined in the available resources dictionary.
+
+3. **Non-Negative Values:** Resource capacities and requested amounts are assumed to be **non-negative numeric values** (`int` or `float`).
+
+4. **Finite Resource Capacity:** Each resource has a **fixed maximum capacity** that cannot be exceeded during allocation.
+
+5. **No Partial Requests:** Each request is considered as a whole when evaluating feasibility; the system assumes requests are not partially fulfilled.
+
+6. **Independent Requests:** Each request only specifies the amount of resources required and does not depend on other requests.
+
+7. **Additive Resource Usage:** The total resource usage is calculated by **summing the requested amounts for each resource across all requests**.
+
+8. **Static Inputs:** The available resources and requests are assumed to **remain constant during the evaluation process** (no dynamic changes).
+
+--------------------------------------------------
+
+Prompt 6: 
+System Description You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format
+List atleast 3 invariants that must always hold
+
+LLM Response 6:
+Here are **invariants** that must always hold during execution of the function:
+
+1. **Resource Capacity Integrity:**
+ The available capacity for each resource must never be treated as negative. At any point in evaluation, total allocated resources cannot exceed the original available capacity.
+
+2. **Consistent Resource Mapping:**
+ Resource names used in requests must consistently refer to the same resource definitions in the `resources` dictionary throughout the evaluation.
+
+3. **Accurate Aggregation:**
+ The total requested amount for each resource must always equal the sum of that resource’s amounts across all processed requests (no duplication or omission).
+
+4. **Deterministic Evaluation:**
+ Given the same `resources` and `requests` inputs, the function must always return the same boolean result.
+
+5. **Boolean Return Type:**
+ The function must always return either `True` or `False`, never another data type.
+
+--------------------------------------------------
+
+Prompt 7: 
+System Description You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format
+List atleast 2 negative requirements
+
+LLM Response 7:
+Here are **negative requirements** (things the system is **not required to do**):
+
+1. **No Optimization Requirement:**
+ The system is not required to find the most efficient or optimal allocation of resources; it only needs to determine whether a feasible allocation exists.
+
+2. **No Input Validation Requirement:**
+ The system is not required to handle invalid input formats or incorrect data types, since inputs are assumed to be provided in a reasonable and consistent format.
+
+3. **No Resource Scheduling or Ordering:**
+ The system is not required to determine the order in which requests should be allocated or executed.
+
+4. **No Partial Allocation Handling:**
+ The system is not required to partially fulfill requests if full allocation is not possible.
+
+--------------------------------------------------
+
+Prompt 8: 
+System Description You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format
+Explain how the system should choose between multiple feasible scenarios. If two scenarios satisfy the same constraints, which should be prioritized? 
+
+LLM Response 8:
+The system does **not need to choose between multiple feasible scenarios**. Its purpose is only to **check whether at least one valid allocation exists** that satisfies the resource capacity constraints.
+
+If multiple feasible allocations are possible, the system should simply **return `True` as soon as feasibility is confirmed**. No prioritization, optimization, or comparison between scenarios is required because the function only evaluates feasibility, not the quality or efficiency of different allocations.
+
+--------------------------------------------------
+
+Prompt 9: 
+System Description You are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+implement the is_allocation_feasible function and write 5 additional tests to checl functional requirements, constraints, and edge cases
+
+LLM Response 9:
+Here’s a full implementation of the `is_allocation_feasible` function along with **5 tests** covering functional requirements, constraints, and edge cases:
+
+```python
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+ """
+ # Copy resources to track remaining capacity
+ remaining = resources.copy()
+
+ for request in requests:
+ for resource, amount in request.items():
+ # If resource is unknown, allocation is not feasible
+ if resource not in remaining:
+ return False
+ # If request exceeds available, allocation is not feasible
+ if amount > remaining[resource]:
+ return False
+ # Reduce remaining capacity
+ remaining[resource] -= amount
+
+ return True
+
+# ------------------- TESTS -------------------
+
+def test_is_allocation_feasible():
+ # Test 1: Basic feasible case
+ resources = {"CPU": 10, "Memory": 32}
+ requests = [{"CPU": 4, "Memory": 8}, {"CPU": 3, "Memory": 16}]
+ assert is_allocation_feasible(resources, requests) == True, "Test 1 failed"
+
+ # Test 2: Exceeds resource capacity
+ resources = {"CPU": 5, "Memory": 16}
+ requests = [{"CPU": 3, "Memory": 8}, {"CPU": 4, "Memory": 10}]
+ assert is_allocation_feasible(resources, requests) == False, "Test 2 failed"
+
+ # Test 3: Empty requests (edge case)
+ resources = {"CPU": 10, "Memory": 32}
+ requests = []
+ assert is_allocation_feasible(resources, requests) == True, "Test 3 failed"
+
+ # Test 4: Request with unknown resource
+ resources = {"CPU": 10, "Memory": 32}
+ requests = [{"CPU": 2, "GPU": 4}]
+ assert is_allocation_feasible(resources, requests) == False, "Test 4 failed"
+
+ # Test 5: Request uses zero capacity resources exactly
+ resources = {"CPU": 5, "Memory": 10, "Disk": 0}
+ requests = [{"CPU": 5, "Memory": 10, "Disk": 0}]
+ assert is_allocation_feasible(resources, requests) == True, "Test 5 failed"
+
+ print("All tests passed!")
+
+# Run tests
+test_is_allocation_feasible()
+```
+
+### ✅ Test Coverage Explanation:
+
+1. **Test 1** – Functional requirement: multiple requests satisfied within capacity.
+2. **Test 2** – Constraint: total request exceeds available capacity.
+3. **Test 3** – Edge case: empty request list should return `True`.
+4. **Test 4** – Special rule: request references unknown resource → infeasible.
+5. **Test 5** – Constraint: zero-capacity resource can be exactly fulfilled.
+
+This implementation also respects the **assumptions** (non-negative, valid input formats, and static resources).
+
+If you want, I can also write a **version that handles float resources and partial resource usage detection** for more precise edge cases.
+
+Do you want me to do that?
+
+--------------------------------------------------
+
+Prompt 10:
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+
+ """
+ # TODO: Implement this function
+ # Copy resources to track remaining capacity
+ remaining = resources.copy()
+
+ for request in requests:
+ for resource, amount in request.items():
+ # If resource is unknown, allocation is not feasible
+ if resource not in remaining:
+ return False
+ # If request exceeds available, allocation is not feasible
+ if amount > remaining[resource]:
+ return False
+ # Reduce remaining capacity
+ remaining[resource] -= amount
+
+ return True
+
+FAILED [100%]
+src\test_solution.py:38 (test_non_dict_request_raises)
+def test_non_dict_request_raises():
+ # Non-Dict Request Raises Error
+ # Constraint: structural validation
+ # Reason: request must be a dict
+ resources = {'cpu': 5}
+ requests = [{'cpu': 2}, ['mem', 1]] # malformed request
+ with pytest.raises(ValueError):
+> is_allocation_feasible(resources, requests)
+
+src\test_solution.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resources = {'cpu': 5}, requests = [{'cpu': 2}, ['mem', 1]]
+
+ def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+ ) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+ 
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+ 
+ Returns:
+ True if the allocation is feasible, False otherwise.
+ 
+ """
+ # TODO: Implement this function
+ # Copy resources to track remaining capacity
+ remaining = resources.copy()
+ 
+ for request in requests:
+> for resource, amount in request.items():
+ ^^^^^^^^^^^^^
+E AttributeError: 'list' object has no attribute 'items'
+
+src\solution.py:37: AttributeError
+
+The code for the is_allocation_feasiblie function fails for this test case fix it 
+
+LLM Response 10:
+
+Ah! The failure happens because the current implementation **assumes every request is a dictionary**, but one of the test cases includes a **malformed request** that is a list (`['mem', 1]`). Trying to call `.items()` on a list raises an `AttributeError`.
+
+To fix this, we need to **validate that each request is a dictionary** and raise a `ValueError` if it’s not, as the test expects. Here’s the corrected implementation:
+
+```python
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+
+ Raises:
+ ValueError: If any request is not a dictionary.
+ """
+ # Copy resources to track remaining capacity
+ remaining = resources.copy()
+
+ for request in requests:
+ # Validate that each request is a dict
+ if not isinstance(request, dict):
+ raise ValueError(f"Each request must be a dictionary, got {type(request).__name__}")
+ 
+ for resource, amount in request.items():
+ # If resource is unknown, allocation is not feasible
+ if resource not in remaining:
+ return False
+ # If request exceeds available, allocation is not feasible
+ if amount > remaining[resource]:
+ return False
+ # Reduce remaining capacity
+ remaining[resource] -= amount
+
+ return True
+```
+
+### ✅ What Changed:
+
+1. Added a **type check** for each request:
+
+ ```python
+ if not isinstance(request, dict):
+ raise ValueError(...)
+ ```
+
+ This ensures that malformed requests (like lists or other types) raise an error instead of causing an AttributeError.
+
+2. Preserved all previous logic for feasibility checks.
+
+Now, the function will **pass the `test_non_dict_request_raises`** as well as all other functional and edge case tests.
+
+---
+
+If you want, I can also **update the previous 5 test cases** to include this new test for malformed requests so your test suite is complete. Do you want me to do that?

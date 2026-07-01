@@ -1,0 +1,529 @@
+## Student Name:
+## Student ID: 
+
+Prompt 1: "from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+
+ """
+ # TODO: Implement this function
+ raise NotImplementedError("suggest_slots function has not been implemented yet")
+
+Can you help me brainstorm solutions for this code snippet?"
+LLM Response 1: "Yeah—let’s think this through together 👍
+This is a nice, clean feasibility-check problem, and there are a few solid ways to approach it depending on assumptions you want to make.
+
+---
+
+## First: clarify the core idea
+
+You’re given:
+
+* **`resources`** → total capacity per resource
+
+ ```python
+ {"cpu": 8, "ram": 32}
+ ```
+
+* **`requests`** → each request consumes some amount of one or more resources
+
+ ```python
+ [
+ {"cpu": 2, "ram": 8},
+ {"cpu": 4},
+ {"ram": 16}
+ ]
+ ```
+
+You want to know: **can all requests be satisfied simultaneously without exceeding any resource capacity?**
+
+This is basically:
+
+> Sum all requested amounts per resource and make sure none exceed availability.
+
+---
+
+## Solution 1: Aggregate totals (most straightforward)
+
+### Idea
+
+1. Track total demand per resource
+2. Compare against capacity
+
+### Pseudocode
+
+```text
+create empty dict total_demand
+
+for each request:
+ for each resource in request:
+ add request amount to total_demand[resource]
+
+for each resource in total_demand:
+ if total_demand[resource] > resources.get(resource, 0):
+ return False
+
+return True
+```
+
+### Why this works
+
+* Simple
+* O(total number of requested resource entries)
+* Easy to reason about and test
+
+### Edge cases handled
+
+* Request asks for a resource that doesn’t exist → capacity is 0 → infeasible
+* Missing resources in a request → implicitly 0 usage
+
+---
+
+## Solution 2: Subtract-as-you-go (capacity depletion model)
+
+### Idea
+
+Instead of summing up, **consume capacity** as you process requests.
+
+### Pseudocode
+
+```text
+make a copy of resources → remaining
+
+for each request:
+ for each resource, amount:
+ if resource not in remaining:
+ return False
+ remaining[resource] -= amount
+ if remaining[resource] < 0:
+ return False
+
+return True
+```
+
+### Pros
+
+* Reads naturally: “allocate this, then check if we ran out”
+* Good mental model if you later extend to partial allocations or ordering
+
+### Cons
+
+* Order-dependent *if* you later allow partial or optional requests
+
+---
+
+## Solution 3: Functional / Pythonic style
+
+If you want something more concise and expressive:
+
+```python
+from collections import defaultdict
+
+total = defaultdict(float)
+
+for req in requests:
+ for r, amt in req.items():
+ total[r] += amt
+
+return all(total[r] <= resources.get(r, 0) for r in total)
+```
+
+### When this shines
+
+* Clean
+* Easy to audit
+* Good for interviews / teaching
+
+---
+
+## Solution 4: Defensive / validation-heavy version
+
+If this is production code, you might also want to:
+
+* Reject negative numbers
+* Enforce numeric types
+* Allow floats but beware of precision
+
+```python
+if any(v < 0 for v in resources.values()):
+ raise ValueError("Resources must be non-negative")
+```
+
+---
+
+## Things to decide before implementing
+
+These choices affect behavior:
+
+1. **What if a request asks for a resource not in `resources`?**
+
+ * Treat as 0 capacity → infeasible (most common)
+ * Ignore it
+ * Raise an error
+
+2. **Are negative requests allowed?**
+
+ * Probably not
+
+3. **Are requests indivisible?**
+
+ * Your function assumes yes (all-or-nothing)
+
+4. **Do you care about order?**
+
+ * Current signature suggests *no*
+
+---
+
+## Recommended default implementation
+
+For this function signature, I’d recommend **Solution 1**:
+
+* Clear
+* Deterministic
+* Easy to extend later (e.g., logging why it failed)
+
+If you want, I can:
+
+* Write the final implementation
+* Add unit tests
+* Extend this to *return which resource fails*
+* Adapt it for scheduling / bin-packing style constraints
+
+Just tell me where you want to take it 🚀
+"
+
+--------------------------------------------------
+Prompt 2: "I would decide that if a request asks for a resource not in resources, that the the capacity is zero, but also raise an error so that the user is aware. Negative requests are not allowed, and requests are indivisible, order is not important. Generate me this code"
+LLM Response 2: "Perfect — those rules make the behavior very clear. Here’s a clean, defensive implementation that follows exactly what you described:
+
+* Missing resource ⇒ **capacity treated as 0 AND raises an error**
+* Negative requests ⇒ **error**
+* Requests are **indivisible**
+* Order **does not matter**
+
+```python
+from typing import Dict, List, Union
+from collections import defaultdict
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Rules:
+ - If a request references a resource not in `resources`, its capacity is treated as 0
+ and a ValueError is raised.
+ - Negative request amounts are not allowed.
+ - Requests are indivisible.
+ - Request order does not matter.
+ """
+
+ # Validate resource capacities
+ for r, cap in resources.items():
+ if cap < 0:
+ raise ValueError(f"Resource capacity for '{r}' must be non-negative")
+
+ total_demand: Dict[str, Number] = defaultdict(float)
+
+ for i, request in enumerate(requests):
+ for resource, amount in request.items():
+ if amount < 0:
+ raise ValueError(
+ f"Negative request amount for resource '{resource}' "
+ f"in request index {i}"
+ )
+
+ if resource not in resources:
+ raise ValueError(
+ f"Requested resource '{resource}' does not exist "
+ f"(treated as zero capacity)"
+ )
+
+ total_demand[resource] += amount
+
+ for resource, demand in total_demand.items():
+ if demand > resources[resource]:
+ return False
+
+ return True
+```
+
+### Why this version is solid
+
+* **Explicit validation**: errors are raised early and clearly
+* **Order-independent**: aggregates first, checks second
+* **Predictable failure modes**: infeasible ≠ invalid input
+* **Easy to extend**: you could later return diagnostics instead of just `False`
+
+If you want, next steps could be:
+
+* returning *which* resource caused infeasibility
+* adding a `strict=False` mode that warns instead of raising
+* converting this into a scheduler that returns an allocation map instead of just `bool`
+"
+--------------------------------------------------
+
+--------------------------------------------------
+Prompt 3: "## Student Name:
+## Student ID: 
+
+"""
+Public test suite for the meeting slot suggestion exercise.
+
+Students can run these tests locally to check basic correctness of their implementation.
+The hidden test suite used for grading contains additional edge cases and will not be
+available to students.
+"""
+from solution import is_allocation_feasible
+import pytest
+
+def test_basic_feasible_single_resource():
+ # Basic Feasible Single-Resource
+ # Constraint: total demand <= capacity
+ # Reason: check basic functional requirement
+ resources = {'cpu': 10}
+ requests = [{'cpu': 3}, {'cpu': 4}, {'cpu': 3}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_multi_resource_infeasible_one_overloaded():
+ # Multi-Resource Infeasible (one overload)
+ # Constraint: one resource exceeds capacity
+ # Reason: check detection of per-resource infeasibility
+ resources = {'cpu': 8, 'mem': 30}
+ requests = [{'cpu': 2, 'mem': 8}, {'cpu': 3, 'mem': 10}, {'cpu': 3, 'mem': 14}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_missing_resource_in_availability():
+ # Missing Resource in Requests
+ # Constraint: request references unavailable resource
+ # Reason: allocation must be infeasible
+ resources = {'cpu': 10}
+ requests = [{'cpu': 2}, {'gpu': 1}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_non_dict_request_raises():
+ # Non-Dict Request Raises Error
+ # Constraint: structural validation
+ # Reason: request must be a dict
+ resources = {'cpu': 5}
+ requests = [{'cpu': 2}, ['mem', 1]] # malformed request
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+
+"""TODO: Add at least 5 additional test cases to test your implementation."""
+
+Give me at least 10 ideas for test cases to check functional requirements, constraints, and edge cases"
+LLM Response 3: "Nice test suite so far — it’s well-commented and hits the core path 👍
+Here are **more than 10 solid test ideas**, grouped by *what they’re validating*, so you can pick the ones that best strengthen your coverage (and impress the grader).
+
+---
+
+## Functional correctness
+
+1. **Empty requests list**
+
+ * *Case*: No requests at all
+ * *Expectation*: Feasible (`True`)
+ * *Why*: Zero demand should always be satisfiable
+
+2. **Single request exactly equals capacity**
+
+ * *Case*: One request uses all of a resource
+ * *Expectation*: `True`
+ * *Why*: Boundary condition (`==` vs `>`)
+
+3. **Multiple resources exactly filled**
+
+ * *Case*: Total demand equals capacity for all resources
+ * *Expectation*: `True`
+ * *Why*: Multi-resource boundary condition
+
+4. **Single request exceeding capacity**
+
+ * *Case*: One request alone exceeds capacity
+ * *Expectation*: `False`
+ * *Why*: Catch obvious infeasibility early
+
+---
+
+## Constraint validation / input correctness
+
+5. **Negative request amount**
+
+ * *Case*: Request contains negative value
+ * *Expectation*: `ValueError`
+ * *Why*: Explicitly forbidden by spec
+
+6. **Negative resource capacity**
+
+ * *Case*: Resource defined with negative capacity
+ * *Expectation*: `ValueError`
+ * *Why*: Invalid system state
+
+7. **Non-numeric request value**
+
+ * *Case*: Request value is string or `None`
+ * *Expectation*: `ValueError` or `TypeError`
+ * *Why*: Enforce `Number` type constraint
+
+8. **Request is not a dict**
+
+ * *Case*: Request is list / tuple / int
+ * *Expectation*: `ValueError`
+ * *Why*: Structural validation (hidden tests *love* this)
+
+---
+
+## Missing / unexpected resources
+
+9. **Request includes unknown resource among valid ones**
+
+ * *Case*: `{'cpu': 2, 'gpu': 1}`
+ * *Expectation*: `False` (or `ValueError` depending on spec)
+ * *Why*: Mixed-validity request
+
+10. **Multiple requests reference missing resource**
+
+ * *Case*: Several requests ask for unavailable resource
+ * *Expectation*: `False`
+ * *Why*: Ensure consistent handling, not short-circuit bugs
+
+---
+
+## Edge cases
+
+11. **Zero-capacity resource with zero demand**
+
+ * *Case*: Resource capacity = 0, request amount = 0
+ * *Expectation*: `True`
+ * *Why*: Zero is valid and often mishandled
+
+12. **Zero-capacity resource with positive demand**
+
+ * *Case*: Capacity = 0, request > 0
+ * *Expectation*: `False`
+ * *Why*: Hard boundary
+
+13. **Floating-point resource usage**
+
+ * *Case*: Capacities and requests are floats
+ * *Expectation*: Correct feasibility result
+ * *Why*: Spec allows `float`
+
+14. **Very large numbers**
+
+ * *Case*: Large capacities and requests (e.g. `1e9`)
+ * *Expectation*: Correct result, no overflow
+ * *Why*: Stress test arithmetic logic
+
+---
+
+## Behavioral assumptions
+
+15. **Order independence**
+
+ * *Case*: Same requests in different order
+ * *Expectation*: Same result
+ * *Why*: Explicit requirement
+
+16. **Duplicate resource keys across many requests**
+
+ * *Case*: Many small requests for same resource
+ * *Expectation*: Correct accumulation
+ * *Why*: Detect aggregation bugs
+
+---
+
+If you want, next I can:
+
+* Turn **5–8 of these into fully written pytest tests**
+* Help you align **error vs False behavior** with your spec (important!)
+* Review your current implementation against *hidden-test-style pitfalls*
+
+Just say the word 👌
+"
+--------------------------------------------------
+
+--------------------------------------------------
+Prompt 4: "I like 1. 5. 7. 13. and 14. please write them"
+LLM Response 4: "Great picks — those hit **correctness, validation, and numeric edge cases** really nicely.
+Here are those **5 tests written cleanly in pytest style**, matching the tone and structure of your existing suite.
+
+```python
+def test_empty_requests():
+ # Empty Requests
+ # Constraint: no demand
+ # Reason: zero requests should always be feasible
+ resources = {'cpu': 10, 'mem': 20}
+ requests = []
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_negative_request_amount_raises():
+ # Negative Request Amount
+ # Constraint: negative requests are not allowed
+ # Reason: invalid input must raise an error
+ resources = {'cpu': 5}
+ requests = [{'cpu': -1}]
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+
+def test_non_numeric_request_value_raises():
+ # Non-Numeric Request Value
+ # Constraint: request values must be numeric
+ # Reason: type safety
+ resources = {'cpu': 5}
+ requests = [{'cpu': 'two'}]
+ with pytest.raises((TypeError, ValueError)):
+ is_allocation_feasible(resources, requests)
+
+def test_floating_point_resources_and_requests():
+ # Floating-Point Resources and Requests
+ # Constraint: floats are allowed
+ # Reason: numeric generality
+ resources = {'cpu': 5.5, 'mem': 10.0}
+ requests = [{'cpu': 2.5, 'mem': 4.0}, {'cpu': 3.0, 'mem': 6.0}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_large_numbers():
+ # Large Numbers
+ # Constraint: handle large capacities and demands
+ # Reason: stress test arithmetic correctness
+ resources = {'cpu': 1e12}
+ requests = [{'cpu': 4e11}, {'cpu': 6e11}]
+ assert is_allocation_feasible(resources, requests) is True
+```
+
+### Why these are strong
+
+* They **don’t overlap** with your existing tests
+* They probe **hidden-test-style failures** (types, floats, boundaries)
+* They clearly separate **invalid input (raise)** vs **valid-but-infeasible (False)**
+
+If you want, I can now:
+
+* Align your implementation *exactly* with these tests (there’s one small tweak needed for test #7 😉)
+* Add docstring-level specification language to match these behaviors
+* Help you predict which hidden tests profs usually add
+
+Just let me know.
+"
+--------------------------------------------------

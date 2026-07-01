@@ -1,0 +1,314 @@
+Prompt 1: Help me update this code for this new requriementsYou are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. 
+
+new requrement: At least one resource must remain unallocated after assignment. This requirement applies in addition to all previously described behavior. An allocation that satisfies all other conditions but consumes all available resources is no longer valid. Update your solution, tests and documents to incorporate this requirement.
+
+, , 
+ # Student Name:
+# Student ID:
+
+"""
+Stub file for the is allocation feasible exercise.
+
+Implement the function `is_allocation_feasible` to determine whether a set of resource requests can be satisfied
+given limited capacities.
+
+Assumptions (reasonable/consistent format):
+- `resources` maps resource names to non-negative numeric capacities.
+- Each request is a dict mapping resource names to numeric required amounts.
+- Requests are interpreted as *simultaneous* (i.e., total demand per resource is the sum across all requests).
+- Any resource not present in `resources` has capacity 0 (so any positive request for it makes allocation infeasible).
+"""
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Raises:
+ ValueError: if inputs are structurally invalid (e.g., a request is not a dict).
+ """
+ # Structural validation for resources
+ if not isinstance(resources, dict):
+ raise ValueError(
+ "resources must be a dict mapping resource name to capacity")
+
+ for rname, cap in resources.items():
+ if not isinstance(rname, str):
+ raise ValueError("resource names must be strings")
+ if not isinstance(cap, (int, float)):
+ raise ValueError(
+ f"capacity for resource '{rname}' must be numeric")
+ if cap < 0:
+ raise ValueError(
+ f"capacity for resource '{rname}' cannot be negative")
+
+ # Structural validation for requests
+ if not isinstance(requests, list):
+ raise ValueError("requests must be a list of dicts")
+
+ total_demand: Dict[str, float] = {}
+
+ for idx, req in enumerate(requests):
+ if not isinstance(req, dict):
+ raise ValueError(f"request at index {idx} must be a dict")
+
+ for rname, amount in req.items():
+ if not isinstance(rname, str):
+ raise ValueError("requested resource names must be strings")
+ if not isinstance(amount, (int, float)):
+ raise ValueError(
+ f"amount for resource '{rname}' in request {idx} must be numeric")
+ if amount < 0:
+ raise ValueError(
+ f"amount for resource '{rname}' in request {idx} cannot be negative")
+
+ total_demand[rname] = total_demand.get(rname, 0.0) + float(amount)
+
+ # Feasibility check (missing resource => 0 capacity)
+ for rname, demand in total_demand.items():
+ cap = float(resources.get(rname, 0.0))
+ if demand > cap:
+ return False
+
+ return True
+
+LLM Response 1: # Student Name:
+# Student ID:
+
+"""
+Stub file for the is allocation feasible exercise.
+
+Implement the function `is_allocation_feasible` to determine whether a set of resource requests can be satisfied
+given limited capacities.
+
+Assumptions (reasonable/consistent format):
+- `resources` maps resource names to non-negative numeric capacities.
+- Each request is a dict mapping resource names to numeric required amounts.
+- Requests are interpreted as *simultaneous* (i.e., total demand per resource is the sum across all requests).
+- Any resource not present in `resources` has capacity 0 (so any positive request for it makes allocation infeasible).
+"""
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Additional requirement:
+ At least one resource must remain unallocated after assignment.
+ An allocation that consumes all available resources is not valid.
+
+ Raises:
+ ValueError if the inputs are structurally invalid.
+ """
+
+ # Validate resources structure
+ if not isinstance(resources, dict):
+ raise ValueError("resources must be a dictionary")
+
+ for rname, cap in resources.items():
+ if not isinstance(rname, str):
+ raise ValueError("resource names must be strings")
+ if not isinstance(cap, (int, float)):
+ raise ValueError("resource capacity must be numeric")
+ if cap < 0:
+ raise ValueError("resource capacity cannot be negative")
+
+ # Validate requests structure
+ if not isinstance(requests, list):
+ raise ValueError("requests must be a list")
+
+ total_demand: Dict[str, float] = {}
+
+ for i, req in enumerate(requests):
+ if not isinstance(req, dict):
+ raise ValueError("each request must be a dictionary")
+
+ for rname, amount in req.items():
+ if not isinstance(rname, str):
+ raise ValueError("resource names in requests must be strings")
+ if not isinstance(amount, (int, float)):
+ raise ValueError("request amounts must be numeric")
+ if amount < 0:
+ raise ValueError("request amounts cannot be negative")
+
+ total_demand[rname] = total_demand.get(rname, 0) + amount
+
+ # Check capacity constraints
+ for rname, demand in total_demand.items():
+ capacity = resources.get(rname, 0)
+ if demand > capacity:
+ return False
+
+ # New requirement: at least one resource must remain unused
+ for rname, capacity in resources.items():
+ demand = total_demand.get(rname, 0)
+ if capacity - demand > 0:
+ return True
+
+ return False
+
+ ------------------------------------------------------------ 
+
+--------------------------------------------------
+Prompt 2: "IN YOUR own words, restate the new requirement in one clear sentence"
+LLM Response 2: "An allocation is considered feasible only if all requests fit within the available resource capacities and at least one unit of some resource remains unused after the allocation."
+--------------------------------------------------
+Prompt 3: "Can you then update the is_allocation_feasible function in solution.py with new requirement?" 
+
+LLM Response 3: "from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Additional requirement:
+ At least one resource must remain unallocated after assignment.
+ An allocation that consumes all available resources is not valid.
+
+ Raises:
+ ValueError if the inputs are structurally invalid.
+ """
+
+ # Validate resources structure
+ if not isinstance(resources, dict):
+ raise ValueError("resources must be a dictionary")
+
+ for rname, cap in resources.items():
+ if not isinstance(rname, str):
+ raise ValueError("resource names must be strings")
+ if not isinstance(cap, (int, float)):
+ raise ValueError("resource capacity must be numeric")
+ if cap < 0:
+ raise ValueError("resource capacity cannot be negative")
+
+ # Validate requests structure
+ if not isinstance(requests, list):
+ raise ValueError("requests must be a list")
+
+ total_demand: Dict[str, float] = {}
+
+ for i, req in enumerate(requests):
+ if not isinstance(req, dict):
+ raise ValueError("each request must be a dictionary")
+
+ for rname, amount in req.items():
+ if not isinstance(rname, str):
+ raise ValueError("resource names in requests must be strings")
+ if not isinstance(amount, (int, float)):
+ raise ValueError("request amounts must be numeric")
+ if amount < 0:
+ raise ValueError("request amounts cannot be negative")
+
+ total_demand[rname] = total_demand.get(rname, 0) + amount
+
+ # Check capacity constraints
+ for rname, demand in total_demand.items():
+ capacity = resources.get(rname, 0)
+ if demand > capacity:
+ return False
+
+ # New requirement: at least one resource must remain unused
+ for rname, capacity in resources.items():
+ demand = total_demand.get(rname, 0)
+ if capacity - demand > 0:
+ return True
+
+ return False" 
+
+--------------------------------------------------
+Prompt 4: "Can you update the the tests to reflect the new requirement?"
+
+LLM Response 4: "## Student Name:
+## Student ID: 
+
+"""
+Public test suite for the resource allocation feasibility exercise.
+
+Updated requirement:
+At least one resource must remain unallocated after assignment.
+An allocation that consumes all available resources is not valid.
+"""
+
+from solution import is_allocation_feasible
+import pytest
+
+def test_basic_feasible_single_resource():
+ # Basic Feasible Single-Resource
+ # Constraint: demand < capacity so some resource remains
+ resources = {'cpu': 10}
+ requests = [{'cpu': 3}, {'cpu': 4}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_single_resource_exact_capacity_invalid():
+ # Exact Capacity Usage (Single Resource)
+ # Constraint: cannot consume all resources
+ resources = {'cpu': 6}
+ requests = [{'cpu': 2}, {'cpu': 4}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_multi_resource_infeasible_one_overloaded():
+ # Multi-Resource Infeasible (one overload)
+ resources = {'cpu': 8, 'mem': 30}
+ requests = [{'cpu': 2, 'mem': 8}, {'cpu': 3, 'mem': 10}, {'cpu': 3, 'mem': 14}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_all_resources_fully_consumed_invalid():
+ # All resources exactly consumed
+ # New requirement: at least one must remain unused
+ resources = {'cpu': 8, 'mem': 30}
+ requests = [{'cpu': 3, 'mem': 10}, {'cpu': 5, 'mem': 20}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_one_resource_remaining_valid():
+ # One resource fully used but another still available
+ resources = {'cpu': 8, 'mem': 30}
+ requests = [{'cpu': 8, 'mem': 20}]
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_missing_resource_in_availability():
+ # Request references unavailable resource
+ resources = {'cpu': 10}
+ requests = [{'cpu': 2}, {'gpu': 1}]
+ assert is_allocation_feasible(resources, requests) is False
+
+def test_empty_requests_feasible():
+ # No requests means all resources remain unused
+ resources = {'cpu': 5, 'mem': 10}
+ requests = []
+ assert is_allocation_feasible(resources, requests) is True
+
+def test_non_dict_request_raises():
+ # Structural validation
+ resources = {'cpu': 5}
+ requests = [{'cpu': 2}, ['mem', 1]]
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+
+def test_negative_request_amount_raises():
+ # Invalid negative demand
+ resources = {'cpu': 10}
+ requests = [{'cpu': -1}]
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+
+def test_negative_resource_capacity_raises():
+ # Invalid negative capacity
+ resources = {'cpu': -5}
+ requests = [{'cpu': 1}]
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)"

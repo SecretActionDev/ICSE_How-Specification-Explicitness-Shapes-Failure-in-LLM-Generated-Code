@@ -1,0 +1,143 @@
+Prompt 1: Help me update this code for this new requriementsYou are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. 
+
+new requrement: At least one resource must remain unallocated after assignment. This requirement applies in addition to all previously described behavior. An allocation that satisfies all other conditions but consumes all available resources is no longer valid. Update your solution, tests and documents to incorporate this requirement.
+
+, For the development, consider the following information:
+ System Goal: nan
+ Inputs: Same as last sheet
+ Outputs: Same as last sheet
+ Functional requirements: [{'fr_1': 'Perform if all requests can be satisfied', 'fr_10': '', 'fr_2': 'Return true only if at least one resource remains unused', 'fr_3': '', 'fr_4': '', 'fr_5': '', 'fr_6': '', 'fr_7': '', 'fr_8': '', 'fr_9': ''}]
+ Constraints: [{'c_1': 'Resource usage is capacity', 'c_2': 'Unallocatable some as last sheet is justified', 'c_3': 'No partial allocations', 'c_4': 'Only using resources may be valid', 'c_5': 'Capabilities are non-', 'c_6': 'At least one frame unit has remain unallocated'}]
+ Invariants: [{'inv_1': 'No capacity is negative', 'inv_2': 'All allocated powers exist', 'inv_3': 'At least one resource remains unused'}]
+ Negative requirements: [{'neg_req_1': 'Must not accept allocations that consume all resources', 'neg_req_2': 'Must not exceed capacity'}]
+ Tie breaking rule: N/A, prohibits only
+ Exception: None specified
+ , 
+ from typing import Dict, List, Union
+import math
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ # Type checks
+ if not isinstance(resources, dict):
+ raise TypeError("Resources must be a dictionary")
+ if not isinstance(requests, list):
+ raise TypeError("Requests must be a list")
+ if resources is None:
+ raise TypeError("Resources cannot be None")
+ if requests is None:
+ raise TypeError("Requests cannot be None")
+ if len(resources) == 0:
+ if len(requests) == 0:
+ raise ValueError("Empty resources with empty requests is invalid")
+ raise ValueError("Resource dictionary cannot be empty")
+
+ # Validate resource keys and values
+ for key, val in resources.items():
+ if not isinstance(key, str):
+ raise TypeError("Resource keys must be strings")
+ if not isinstance(val, (int, float)) or isinstance(val, bool):
+ raise TypeError("Resource values must be numbers")
+ if val < 0 or math.isnan(val) or math.isinf(val):
+ raise ValueError("Resource values must be non-negative finite numbers")
+
+ # Initialize total request tracker
+ total_request = {res: 0 for res in resources}
+
+ # Validate requests
+ for req in requests:
+ if not isinstance(req, dict):
+ raise TypeError("Each request must be a dictionary")
+ for key, val in req.items():
+ if not isinstance(key, str):
+ raise TypeError("Request keys must be strings")
+ if key not in resources:
+ raise ValueError(f"Request uses unknown resource type: {key}")
+ if not isinstance(val, (int, float)) or isinstance(val, bool):
+ raise TypeError("Request values must be numbers")
+ if val < 0 or math.isnan(val) or math.isinf(val):
+ raise ValueError("Request values must be non-negative finite numbers")
+ total_request[key] += val
+
+ # Check total request against available resources
+ for res, total in total_request.items():
+ if total > resources[res]:
+ return False
+
+ return True
+LLM Response 1: from typing import Dict, List, Union
+import math
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ # Basic type checks
+ if resources is None:
+ raise TypeError("Resources cannot be None")
+ if requests is None:
+ raise TypeError("Requests cannot be None")
+ if not isinstance(resources, dict):
+ raise TypeError("Resources must be a dictionary")
+ if not isinstance(requests, list):
+ raise TypeError("Requests must be a list")
+ if len(resources) == 0:
+ if len(requests) == 0:
+ raise ValueError("Empty resources with empty requests is invalid")
+ raise ValueError("Resource dictionary cannot be empty")
+
+ # Validate resource keys and values
+ for key, val in resources.items():
+ if not isinstance(key, str):
+ raise TypeError("Resource keys must be strings")
+ if not isinstance(val, (int, float)) or isinstance(val, bool):
+ raise TypeError("Resource values must be numbers")
+ if val < 0 or math.isnan(val) or math.isinf(val):
+ raise ValueError("Resource values must be non-negative finite numbers")
+
+ # Initialize total request tracker
+ total_request = {res: 0 for res in resources}
+
+ # Validate each request
+ for req in requests:
+ if not isinstance(req, dict):
+ raise TypeError("Each request must be a dictionary")
+ for key, val in req.items():
+ if not isinstance(key, str):
+ raise TypeError("Request keys must be strings")
+ if key not in resources:
+ raise ValueError(f"Request uses unknown resource type: {key}")
+ if not isinstance(val, (int, float)) or isinstance(val, bool):
+ raise TypeError("Request values must be numbers")
+ if val < 0 or math.isnan(val) or math.isinf(val):
+ raise ValueError("Request values must be non-negative finite numbers")
+ # Check for nested or non-scalar types
+ if isinstance(val, (list, tuple, dict)):
+ raise TypeError("Request values must be scalar numbers")
+ total_request[key] += val
+
+ # Check each resource against capacity
+ for res, total in total_request.items():
+ if total > resources[res]:
+ return False # exceeds capacity
+
+ # New requirement: at least one resource unit must remain unallocated
+ # We allow feasibility if at least one resource has remaining capacity
+ any_resource_left = any(resources[res] - total_request[res] > 0 for res in resources)
+ if not any_resource_left:
+ return False
+
+ return True
+
+ ------------------------------------------------------------ 
+Prompt 2: Implement allocation feasibility function
+LLM Response 2: Provided backtracking-based solution
+
+Prompt 3: New requirement added: at least one resource must remain unallocated
+LLM Response 3: Updated solution logic and tests to enforce leftover capacity constraint

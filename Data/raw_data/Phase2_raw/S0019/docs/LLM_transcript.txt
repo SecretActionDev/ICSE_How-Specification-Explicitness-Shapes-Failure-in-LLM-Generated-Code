@@ -1,0 +1,506 @@
+Prompt 1: Help me update this code for this new requriementsYou are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. 
+
+new requrement: At least one resource must remain unallocated after assignment. This requirement applies in addition to all previously described behavior. An allocation that satisfies all other conditions but consumes all available resources is no longer valid. Update your solution, tests and documents to incorporate this requirement.
+
+, , 
+ ## Student Name: Mohammad Mustafidur Rahman
+## Student ID: 220081014
+
+"""
+Stub file for the is allocation feasible exercise.
+
+Implement the function `is_allocation_feasible` to Determine whether a set of resource requests can be satisfied 
+given limited capacities. Take int account any possible constraints. See the lab handout
+for full requirements.
+"""
+ 
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities.
+
+ Args:
+ resources : Dict[str, Number], Mapping from resource name to total available capacity.
+ requests : List[Dict[str, Number]], List of requests. Each request is a mapping from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible, False otherwise.
+
+ """
+
+ total_demand = {}
+
+ for request in requests:
+ if not isinstance(request, dict):
+ raise ValueError("All the request have to be a dictionary")
+ 
+ for resource_name, amount in request.items():
+ if resource_name not in resources:
+ return False
+ 
+ total_demand[resource_name] = total_demand.get(resource_name, 0) + amount
+
+ for resource_name, demand_amount in total_demand.items():
+ if demand_amount > resources[resource_name]:
+ return False
+ return True 
+ 
+ ## TODO: Implement this function
+
+LLM Response 1: from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determine whether a set of resource requests can be satisfied given limited capacities,
+ with the additional requirement that at least one unit of some resource remains unallocated.
+
+ Args:
+ resources: Dict[str, Number] - mapping from resource name to total available capacity.
+ requests: List[Dict[str, Number]] - list of requests. Each request is a mapping
+ from resource name to the amount required.
+
+ Returns:
+ True if the allocation is feasible and leaves at least one resource unit unallocated, False otherwise.
+ """
+ 
+ # Keep track of total demand per resource
+ total_demand = {}
+
+ for request in requests:
+ if not isinstance(request, dict):
+ raise ValueError("All requests must be dictionaries.")
+ 
+ for resource_name, amount in request.items():
+ if resource_name not in resources:
+ # Requesting a resource that does not exist
+ return False
+ total_demand[resource_name] = total_demand.get(resource_name, 0) + amount
+
+ # Check if demand exceeds capacity
+ for resource_name, demand_amount in total_demand.items():
+ if demand_amount > resources[resource_name]:
+ return False
+
+ # Check if at least one resource has leftover capacity
+ for resource_name, capacity in resources.items():
+ used = total_demand.get(resource_name, 0)
+ if used < capacity:
+ return True # At least one unit remains unallocated
+
+ # If all resources are fully consumed, allocation is invalid
+ return False
+
+ ------------------------------------------------------------ 
+
+Prompt 2: "At least one resource must remain unallocated after assignment. This requirement applies in addition to all previously described behavior. An allocation that satistles all other conditions but consumes all available resources is no longer valid. Update your solution, tests and documents to incorporate this requirement. I know the requirements is vague, but in real life how does it work. Give me some examples."
+LLM Response 2:In real projects, a requirement like “At least one resource must remain unallocated after assignment” usually means the business wants slack / headroom (for emergencies, break coverage, failures, late arrivals, burst traffic, etc.). The vagueness is normal at first—teams tighten it into something testable.
+
+What “one resource unallocated” can mean (common interpretations)
+1) Discrete resources (most literal)
+
+Resources are indivisible units: staff members, vehicles, GPUs, rooms, licenses.
+
+Rule becomes: use at most total_resources - 1.
+
+If you have 10 workers, your plan can schedule at most 9.
+
+2) Capacity-based resources (often what they actually mean)
+
+Resources have capacity: servers with CPU, trucks with weight, budget dollars.
+Two variants:
+
+Leave one entire unit unused (e.g., keep one server completely idle).
+
+Leave at least 1 unit of total capacity unused (e.g., don’t consume 100% CPU across the pool; keep ≥1 “capacity unit” free).
+
+In practice, teams pick one and write it into acceptance criteria.
+
+Real-life examples
+Example A — Call center staffing (discrete)
+
+You have 8 agents available.
+
+You are assigning agents to queues/shifts.
+
+Requirement: keep 1 agent unassigned as floater (breaks, escalations, sick coverage).
+✅ Valid: assign 7 agents, 1 remains unassigned
+❌ Invalid: assign all 8 even if coverage is perfect
+
+Edge consequence: if only 1 agent exists, you can’t assign anyone at all under the literal rule.
+
+Example B — Compute cluster scheduling (discrete)
+
+20 identical worker nodes.
+
+Jobs need 1 node each.
+
+Requirement: keep 1 node spare for sudden high-priority jobs.
+So your scheduler must refuse the 20th job (or queue it) because it would consume all nodes.
+
+Example C — Warehouse pickers (discrete)
+
+5 pickers.
+
+5 pick waves arrive.
+
+Rule: leave 1 picker unassigned so there’s always someone to handle exceptions (damaged items, customer pickup, forklift request).
+So you can only start 4 waves right now; the 5th waits.
+
+Example D — IP address assignment (discrete)
+
+Sometimes it’s a hard rule:
+
+In small subnets, you must reserve addresses (network/broadcast in IPv4).
+Not exactly “one unallocated after assignment” but the same idea: reserved capacity must remain unused.
+
+How you update the solution (algorithm change)
+The simplest implementation rule
+
+If your current allocator tries to assign as many resources as possible, add a hard cap:
+
+Let R = number of resources
+
+Let A = number of distinct resources assigned
+
+New constraint: A <= R - 1
+
+So if an allocation would assign everyone/everything, you must:
+
+reject it, or
+
+partially allocate (leave some requests unserved), or
+
+defer/queue some work
+
+Example “solution update” (generic Python)
+
+Here’s a minimal allocator that guarantees 1 resource stays free:
+
+class AllocationError(ValueError):
+ pass
+
+def allocate_one_per_request(requests, resources):
+ """
+ Assign 1 resource per request.
+ Hard rule: at least one resource remains unallocated.
+ Returns: dict {request_id: resource_id}
+ Raises: AllocationError if impossible to satisfy constraint.
+ """
+ if not isinstance(requests, list):
+ raise ValueError("requests must be a list")
+ if not isinstance(resources, list):
+ raise ValueError("resources must be a list")
+
+ total = len(resources)
+
+ # NEW RULE: max usable resources = total - 1
+ usable = max(0, total - 1)
+
+ if len(requests) > usable:
+ raise AllocationError(
+ f"Not enough resources while keeping 1 unallocated: "
+ f"requests={len(requests)}, total_resources={total}, usable={usable}"
+ )
+
+ allocation = {}
+ for i, req in enumerate(requests):
+ allocation[req] = resources[i] # simple 1-to-1
+ return allocation
+
+What changed:
+
+We introduced usable = total - 1
+
+We fail if demand exceeds usable resources
+
+This makes “consume all resources” impossible by construction
+
+How you update tests (examples)
+Unit tests (pytest)
+import pytest
+
+def test_leaves_one_unallocated():
+ resources = ["r1", "r2", "r3"]
+ requests = ["a", "b"]
+ alloc = allocate_one_per_request(requests, resources)
+ assert len(set(alloc.values())) == 2
+ assert len(resources) - len(set(alloc.values())) >= 1 # NEW ASSERT
+
+def test_rejects_full_consumption():
+ resources = ["r1", "r2", "r3"]
+ requests = ["a", "b", "c"] # would consume all 3
+ with pytest.raises(AllocationError):
+ allocate_one_per_request(requests, resources)
+
+def test_when_only_one_resource_any_request_fails():
+ resources = ["r1"]
+ requests = ["a"]
+ with pytest.raises(AllocationError):
+ allocate_one_per_request(requests, resources)
+
+def test_zero_requests_ok_even_with_one_resource():
+ resources = ["r1"]
+ requests = []
+ alloc = allocate_one_per_request(requests, resources)
+ assert alloc == {}
+
+What changed:
+
+Add an assertion that unallocated_count >= 1
+
+Add a case where demand equals total resources (must fail)
+
+Add edge cases (1 resource pool)
+
+How you update documentation (spec text you’d add)
+
+You’d add something like this to your README/spec:
+
+Spare Resource Constraint
+The allocator must ensure at least one resource remains unallocated after any successful assignment.
+Formally, if R is the total number of resources and A is the number of distinct resources assigned, then A <= R - 1 must hold.
+If a request set would require assigning all resources, the allocator must reject the allocation (raise AllocationError) rather than returning a full allocation.
+
+Also include a small table:
+
+Total resources Max assignable Example outcome
+1 0 any non-empty request set fails
+2 1 only 1 request can be assigned
+5 4 keep 1 spare
+How this gets clarified in real life (so it doesn’t break the product)
+
+Because the literal rule has harsh edge cases (like “if you only have 1 resource, you can never allocate”), teams usually refine it into one of these:
+
+“Keep 1 spare when total resources ≥ 2”
+
+“Keep at least 10% unallocated capacity”
+
+“Keep 1 spare per pool/region”
+
+“Keep 1 spare except during emergency mode (override flag)”
+
+But if you’re implementing the requirement exactly as written, the updates above are the clean, testable way to do it.
+
+If you tell me what your “resource” is in your project (worker, seat, server, etc.) and what your function signature looks like, I can rewrite the code/tests/docs in your structure (still keeping it strict: must leave at least one unallocated).
+
+Prompt 3: "So the tests are inefficient and the code too because missing requirements?"
+LLM Response 3: Not really “inefficient” — it’s more like incomplete / not aligned with the latest requirement.
+
+When a new requirement appears (“leave at least 1 resource unallocated”), the old code + tests can still be fast, but they’re now missing a constraint, so they can produce a result that’s invalid by the updated spec.
+
+That said, there are a couple small efficiency/quality improvements you can make once you add this requirement.
+
+What was actually missing?
+In the code
+
+If the allocator previously tried to maximize assignments, it likely had no guard that prevents:
+
+assigned_resources == total_resources
+
+So it could return a “perfect” allocation that violates the new spare rule.
+
+In the tests
+
+The tests might have checked:
+
+correct mapping
+
+no duplicates
+
+handles wrong input types
+
+…but didn’t explicitly assert:
+
+“there is at least 1 unallocated resource after any successful allocation”
+
+“allocation that consumes all resources must fail”
+
+So the test suite wasn’t inefficient — it was missing acceptance criteria coverage.
+
+Small efficiency + cleanliness improvements (optional, but nice)
+Avoid recomputing set(alloc.values()) multiple times
+
+Not a huge deal, but it’s cleaner:
+
+assigned = set(alloc.values())
+assert len(resources) - len(assigned) >= 1
+
+Make the rule explicit and cheap
+
+Instead of building an allocation and then checking if it used all resources, fail early:
+
+usable = max(0, len(resources) - 1)
+if len(requests) > usable:
+ raise AllocationError(...)
+
+That’s both correct and efficient.
+
+Better tests (less repetitive, more coverage)
+
+Use parametrized tests so you cover edge cases without writing many functions:
+
+import pytest
+
+@pytest.mark.parametrize("total_resources, requests_count, should_pass", [
+ (1, 0, True),
+ (1, 1, False), # must keep 1 unallocated => usable = 0
+ (2, 1, True), # usable = 1
+ (2, 2, False), # would consume all
+ (5, 4, True), # usable = 4
+ (5, 5, False), # would consume all
+])
+def test_spare_resource_rule(total_resources, requests_count, should_pass):
+ resources = [f"r{i}" for i in range(total_resources)]
+ requests = [f"q{i}" for i in range(requests_count)]
+
+ if should_pass:
+ alloc = allocate_one_per_request(requests, resources)
+ assigned = set(alloc.values())
+ assert len(resources) - len(assigned) >= 1
+ else:
+ with pytest.raises(AllocationError):
+ allocate_one_per_request(requests, resources)
+
+This is more efficient to maintain, not necessarily faster to run.
+
+How this looks in real life
+
+This is super common: requirements evolve, and then:
+
+code becomes “wrong” relative to the new spec,
+
+tests “pass” but only because they didn’t test the new rule,
+
+you update both to make the rule executable.
+
+So yes: if your code/tests don’t include the requirement, they are insufficient — but that’s not “inefficiency,” it’s missing coverage / missing constraints.
+
+If you show me your real allocator function (signature + what a “resource” looks like), I can rewrite the exact code + test cases to match your project’s style and constraints (unique resources, partial assignment allowed vs must fail, etc.).
+
+Prompt 4: "def test_basic_feasible_single_resource(): # Basic Feasible Single-Resource # Constraint: total demand <= capacity # Reason: check basic functional requirement resources = {'cpu': 10} requests = [{'cpu': 3}, {'cpu': 4}, {'cpu': 3}] assert is_allocation_feasible(resources, requests) is True does this test case pass under new condition?"
+LLM Response 4:Under the new condition (“an allocation that consumes all available resources is no longer valid”), this test should NOT pass if is_allocation_feasible is updated correctly.
+
+Because here:
+
+Capacity: cpu = 10
+
+Total demand: 3 + 4 + 3 = 10
+
+Remaining CPU after assignment: 10 - 10 = 0
+
+So it consumes all available resources → invalid now → feasibility should be False (or the allocator should reject it).
+
+What to change (depending on how you interpret “one resource remains unallocated”)
+Most common in your representation (capacity slack)
+
+Interpretation: at least 1 unit of capacity must remain unused (for at least one resource type, or for every type—choose one and document it).
+
+If it’s “leave at least 1 unit unused for cpu”, then update the test to leave slack:
+
+def test_basic_feasible_single_resource_with_spare():
+ resources = {'cpu': 10}
+ requests = [{'cpu': 3}, {'cpu': 4}, {'cpu': 2}] # total = 9, leaves 1 spare
+ assert is_allocation_feasible(resources, requests) is True
+
+And add a new test that the “exact fill” is now infeasible:
+
+def test_basic_single_resource_exact_fill_is_not_feasible_due_to_spare_rule():
+ resources = {'cpu': 10}
+ requests = [{'cpu': 3}, {'cpu': 4}, {'cpu': 3}] # total = 10, leaves 0
+ assert is_allocation_feasible(resources, requests) is False
+
+Less common interpretation (resource type must remain unused)
+
+If “resource” means a whole resource category must be untouched, then with only {'cpu': 10} you’d basically never be able to allocate any cpu at all (because then no resource type remains unallocated). That interpretation usually requires multiple resource types and is rarely intended in capacity-style models.
+
+So: No, your test case should fail under the new condition (because it leaves no spare).
+
+Prompt 5: What could be a test case where it will check explicity under the capacity still correct.
+LLM Response 5: Here are explicit test cases that prove the capacity logic is still correct and the new spare-capacity rule is enforced.
+
+I’ll assume your model is:
+
+resources is total capacity per type, e.g. {'cpu': 10}
+
+requests is a list of per-request demands, e.g. {'cpu': 3}
+
+is_allocation_feasible(resources, requests) returns True/False
+
+1) Single resource type: explicitly checks “≤ capacity” AND “leave 1 spare”
+
+This is the cleanest, most direct one.
+
+def test_feasible_single_resource_leaves_one_unit_spare():
+ resources = {'cpu': 10}
+ requests = [{'cpu': 3}, {'cpu': 4}, {'cpu': 2}] # total = 9
+
+ assert is_allocation_feasible(resources, requests) is True
+
+ # Explicitly verify spare capacity rule (at least 1 unit left)
+ used = sum(r.get('cpu', 0) for r in requests)
+ remaining = resources['cpu'] - used
+ assert remaining >= 1
+
+Why this is good:
+
+It still validates capacity math (used <= capacity)
+
+It explicitly asserts the new rule (remaining >= 1)
+
+It will catch regressions even if the function incorrectly returns True for full utilization.
+
+2) Explicit negative test: exact fill must be rejected now
+
+This is the “capacity is fine but spare rule fails” case.
+
+def test_infeasible_single_resource_when_exactly_fills_capacity():
+ resources = {'cpu': 10}
+ requests = [{'cpu': 3}, {'cpu': 4}, {'cpu': 3}] # total = 10
+
+ assert is_allocation_feasible(resources, requests) is False
+
+This proves the new condition is actually enforced.
+
+3) Multi-resource example (only if your spare rule means “any type has slack”)
+
+Sometimes teams interpret the requirement as:
+after assignment, at least one resource type has some slack remaining.
+
+Then this should pass (CPU fully used, RAM still has slack):
+
+def test_feasible_when_one_resource_type_has_spare_capacity():
+ resources = {'cpu': 10, 'ram': 32}
+ requests = [
+ {'cpu': 5, 'ram': 10},
+ {'cpu': 5, 'ram': 10}, # cpu total = 10 (full), ram total = 20
+ ]
+
+ assert is_allocation_feasible(resources, requests) is True
+
+ used_cpu = sum(r.get('cpu', 0) for r in requests)
+ used_ram = sum(r.get('ram', 0) for r in requests)
+ remaining = {'cpu': resources['cpu'] - used_cpu, 'ram': resources['ram'] - used_ram}
+
+ assert remaining['cpu'] == 0
+ assert remaining['ram'] >= 1 # spare exists somewhere
+
+⚠️ If instead the rule is “every resource type must have at least 1 unit spare”, then this test should be flipped to expect False. That’s the key ambiguity you document.
+
+If you tell me which interpretation you chose:
+
+spare in every resource type, or
+
+spare in at least one resource type,
+
+I can give you the exact “gold standard” test set (minimal but complete) that covers both capacity and spare-rule without redundancy.

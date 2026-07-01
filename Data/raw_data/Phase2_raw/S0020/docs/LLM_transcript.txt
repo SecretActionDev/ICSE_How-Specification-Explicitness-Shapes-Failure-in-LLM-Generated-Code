@@ -1,0 +1,365 @@
+Prompt 1: Help me update this code for this new requriementsYou are asked to implement a Python function that determines whether a set of resource requests can be satisfied given limited capacity. The function takes as input a list of requests and available resources and returns whether a valid allocation exists. The goal is to determine feasibility of allocation based on the provided information. You may assume inputs are provided in a reasonable and consistent format. 
+
+new requrement: At least one resource must remain unallocated after assignment. This requirement applies in addition to all previously described behavior. An allocation that satisfies all other conditions but consumes all available resources is no longer valid. Update your solution, tests and documents to incorporate this requirement.
+
+, , 
+ # Name: Mohsen Maoodhah
+# Student Number: 220153425
+
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ # Checking if resources is a dictionary
+ if not isinstance(resources, dict):
+ raise ValueError("The resources must be a dictionary")
+
+ # Maps each resource to the total usage. Initializes each resource in resources to 0.
+ total_usage: Dict[str, Number] = {key: 0 for key in resources}
+
+ # Going through the list of dictionaries to calculate the total sum for each resource
+ for request in requests:
+ # Making sure a request is a dictionary
+ if not isinstance(request, dict):
+ raise ValueError("Each request must be a dict")
+
+ for name, amount in request.items():
+ if name not in resources:
+ return False
+ if not isinstance(amount, (int, float)):
+ raise ValueError("Requested amount must be a number")
+
+ total_usage[name] += amount
+
+ # Old rule: cannot exceed capacity
+ for name, used in total_usage.items():
+ if used > resources[name]:
+ return False
+
+ # New rule: at least one resource must remain unallocated (strictly positive leftover)
+ # i.e., allocation is invalid if it consumes ALL available resources exactly.
+ has_leftover = any((resources[name] - used) > 0 for name, used in total_usage.items())
+ if not has_leftover:
+ return False
+
+ return True
+
+LLM Response 1: # Name: Mohsen Maoodhah
+# Student Number: 220153425
+
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ """
+ Determines whether a set of resource requests can be satisfied given limited capacity.
+
+ Args:
+ resources: Dictionary mapping resource names to available amounts.
+ requests: List of dictionaries representing requested amounts for each resource.
+
+ Returns:
+ True if all requests can be satisfied without exceeding capacity and 
+ at least one resource remains partially unallocated, False otherwise.
+
+ Raises:
+ ValueError: If `resources` is not a dictionary or if any request is invalid.
+ """
+ # Validate resources input
+ if not isinstance(resources, dict):
+ raise ValueError("The resources must be a dictionary")
+
+ # Initialize total usage of each resource
+ total_usage: Dict[str, Number] = {key: 0 for key in resources}
+
+ # Aggregate requests
+ for request in requests:
+ if not isinstance(request, dict):
+ raise ValueError("Each request must be a dict")
+
+ for name, amount in request.items():
+ if name not in resources:
+ # Requested resource does not exist
+ return False
+ if not isinstance(amount, (int, float)):
+ raise ValueError("Requested amount must be a number")
+ total_usage[name] += amount
+
+ # Check that requests do not exceed capacity
+ for name, used in total_usage.items():
+ if used > resources[name]:
+ return False
+
+ # Ensure at least one resource has leftover capacity
+ has_leftover = any((resources[name] - used) > 0 for name, used in total_usage.items())
+ if not has_leftover:
+ return False
+
+ return True
+
+ ------------------------------------------------------------ 
+## Student Name:
+## Student ID: 
+
+Prompt 2: For the first Prompt I copied all files, and the lab manual to chatGPT, then gave it this Prompt:
+"Give ma a general overview of the lab" (It would be too long to include the whole Prompt)
+
+LLM Response 2: "Copy paste LLMs response"
+Here’s a general overview of the lab you’re working on (the Is Resource Allocation Feasible lab), based on your project structure and README, and what that typically means in the context of software engineering studies:
+📚 What This Lab Is About
+🎯 Core Goal
+You need to implement a Python function is_allocation_feasible that determines whether a set of resource requests can be satisfied given a set of available resources.
+That means:
+You have a pool of resources (e.g., CPU cores, memory).
+You have a list of requests, where each request asks for some amount of resource.
+The function should return True if all requests can be allocated within the available resources, and False if at least one request can’t be satisfied.
+This is essentially solving a feasibility check — not optimization — but just deciding whether the demands fit the supply.
+In your lab, the function signature looks like this:
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+🧩 High-Level Requirements
+✔️ Functional Behavior
+Sum up all requests per resource (like CPU, memory).
+For each type of resource, verify that the total requested does not exceed the available capacity.
+Example: if CPU capacity is 10 and requests are 3 + 4 + 3, it’s feasible → returns True.
+Handle missing resources
+If a request asks for a resource that isn’t in the resources dictionary (e.g., a request asks for 'gpu' but no GPU is defined), the function should return False.
+Type and format checking
+If something in requests isn’t a dictionary (like a malformed list), the function should raise an appropriate error (like ValueError).
+(From hidden tests & expectations) You might also need to handle:
+Requests with zero or negative amounts (depending on lab spec).
+Resources with zero capacity.
+Non-numeric values in resources or requests.
+(These are common edge cases in labs like this.)
+🧪 Testing Expectations
+Your test file includes a few public tests that check:
+✔ Basic correct behavior
+✔ Handling of a multi-resource scenario
+✔ Missing resources
+✔ Non-dict request raising an error
+But the lab requires at least 5 additional test cases covering edge cases like:
+All requests exactly fit capacity
+One request overflows capacity
+No requests (empty list) → should be feasible
+Non-numeric values → should error
+Zero capacity with non-zero request → infeasible
+Requests with extra keys beyond resources
+Tests help ensure your implementation matches not only the public tests but also hidden tests the instructor will run.
+🛠 Coding Steps (General)
+Here’s the thought process of what your function should do:
+Validate input types
+resources must be a dict with numeric values
+requests must be a list of dicts
+Track cumulative usage per resource
+Loop over requests
+For each request, check all resource keys
+If the key doesn’t exist in resources, return False
+Sum usage for each resource across all requests
+Compare totals with capacity
+If any total exceeds capacity, return False
+If everything fits, return True
+🧠 Why This Matters
+This lab is designed to help you:
+✔ Practice careful requirements interpretation — deciding exactly what should happen for every situation
+✔ Think about edge cases (what happens when inputs are malformed or unexpected)
+✔ Learn how tests help ensure correctness — including hidden tests you didn’t see
+✔ Explore how incomplete or ambiguous specifications affect coding results and how AI can help reason about them
+In professional software engineering, deciding feasibility based on requirements and writing tests to ensure correctness are foundational skills.
+📌 Final Summary (Short)
+You’ll implement is_allocation_feasible to check if resource requests fit within capacities.
+You need to validate inputs, sum requests by resource type, and check capacities.
+You must write five additional tests covering edge cases.
+Run tests with pytest and ensure both public and hidden tests pass.
+--------------------------------------------------
+Prompt 3: "Ok now I understand the functional behaviour can you give me a example of what is_allocaiton_feasible could look like"
+LLM Response 3: 
+Sure — here’s a simple example of what is_allocation_feasible could look like in Python based on the functional behavior you described. This implementation checks whether all resource requests can fit within the available capacities and does some basic input validation:
+from typing import Dict, List, Union
+
+Number = Union[int, float]
+
+def is_allocation_feasible(
+ resources: Dict[str, Number],
+ requests: List[Dict[str, Number]]
+) -> bool:
+ # Validate `resources` is a dict of numbers
+ if not isinstance(resources, dict):
+ raise ValueError("resources must be a dict")
+
+ # Track total usage per resource
+ total_usage: Dict[str, Number] = {key: 0 for key in resources}
+
+ for request in requests:
+ # Each request must be a dict
+ if not isinstance(request, dict):
+ raise ValueError("each request must be a dict")
+
+ for r_name, amount in request.items():
+ # Request refers to a non-existent resource
+ if r_name not in resources:
+ return False
+ # Validate that amount requested is a number
+ if not isinstance(amount, (int, float)):
+ raise ValueError("requested amount must be a number")
+
+ # Add this amount to total usage
+ total_usage[r_name] += amount
+
+ # Check each resource usage against its capacity
+ for r_name, used in total_usage.items():
+ if used > resources[r_name]:
+ return False
+
+ # If all resources are within capacity, it's feasible
+ return True
+🧠 What This Does
+✔ It validates inputs (ensuring each request is a dict of numbers)
+✔ It sums resource usage for each resource
+✔ It returns False if any request is for an unknown resource
+✔ It compares usage to capacity and returns True only if everything fits
+This matches the expected functional behavior you got from the README and test files.
+You can run pytest to confirm this passes your public tests and then write additional tests for hidden edge cases.
+If you want, I can also help write those extra five test cases!
+
+--------------------------------------------------
+Prompt 4: Now that I have test_solution.py and solution.py how can I run the tests?
+LLM Response 4:
+Here’s how you can run your tests (like test_solution.py) using pytest, the Python testing tool:
+✅ 1. Make Sure pytest Is Installed
+Before running tests, you need pytest installed. In your terminal or command Prompt run:
+pip install pytest
+This installs the testing framework if you haven’t already.
+✅ 2. Run All Tests in the Project
+Open a terminal in the root of your project (where your src/ and tests/ folders are) and run:
+pytest
+Or, to see more detailed output:
+pytest -v
+Pytest will automatically look for files named with test_*.py and run every test in them.
+💡 3. Run Tests in a Specific File
+If you only want to run the tests in test_solution.py, do:
+pytest tests/test_solution.py
+(Adjust the path if your test file is somewhere else.)
+🔎 4. Run a Single Test Function
+To run only one test, like test_basic_feasible_single_resource, run:
+pytest tests/test_solution.py::test_basic_feasible_single_resource
+This tells pytest to only execute that one function.
+🧪 What You Should See
+When pytest runs, it prints:
+. for each passing test
+F for a failed test
+A summary when it finishes
+Example output might look like:
+collected 10 items
+
+test_solution.py::test_basic_feasible_single_resource PASSED
+test_solution.py::test_multi_resource_infeasible_one_overloaded FAILED
+...
+This makes it easy to see what passed and what failed.
+📌 Quick Summary
+Command What it does
+pytest Runs all tests
+pytest -v Runs all tests with detailed output
+pytest path/to/test_file.py Runs tests in a specific file
+pytest path/to/file.py::test_name Runs only one specific test
+If you want help writing the 5 additional test cases, just ask!
+--------------------------------------------------
+Then I wrote 2 tests and asked it about them
+Prompt 5: "def test1(): resources = {'cpu:': 4, 'gpu': 7} requests = [{'cpu': 2}, {'cpu': 2}, {'gpu': 3}] assert is_allocation_feasible(resources, requests) is True def test(): resources = {'cpu': 6} requests = [{'cpu': 5}, {'mem': 4}] assert is_allocation_feasible(resources, requests) is False I wrote these 2 tests are they correct?"
+
+LLM Response 5:
+"Here’s clear feedback on the two tests you wrote:
+🧪 Test 1
+def test1():
+ resources = {'cpu:': 4, 'gpu': 7}
+ requests = [{'cpu': 2}, {'cpu': 2}, {'gpu': 3}]
+ assert is_allocation_feasible(resources, requests) is True
+❌ This test has a bug
+The key 'cpu:' in resources has a colon at the end ('cpu:') instead of 'cpu'.
+So the function will treat this as:
+There is no actual 'cpu' resource declared
+Requests ask for 'cpu', but resources only contain 'cpu:' → missing resource
+Correct result should be False, not True
+So the test is not correct as written.
+🧪 Test 2
+def test():
+ resources = {'cpu': 6}
+ requests = [{'cpu': 5}, {'mem': 4}]
+ assert is_allocation_feasible(resources, requests) is False
+✅ This one is correct.
+Explanation:
+You request 5 CPU → okay (≤ 6)
+You request 4 memory → but resources do not include mem
+So allocation is not possible → correct result is False
+✅ Corrected Version of Your Tests
+Test 1 (fixed resource key)
+def test_additional_feasible_multi_resource():
+ resources = {'cpu': 4, 'gpu': 7}
+ requests = [{'cpu': 2}, {'cpu': 2}, {'gpu': 3}]
+ assert is_allocation_feasible(resources, requests) is True
+✔ This properly tests that total CPU (2+2 = 4 ≤ 4) and GPU (3 ≤ 7) fits.
+Test 2 (as you wrote it)
+def test_additional_missing_resource():
+ resources = {'cpu': 6}
+ requests = [{'cpu': 5}, {'mem': 4}]
+ assert is_allocation_feasible(resources, requests) is False
+✔ This tests that missing resource mem makes the allocation infeasible.
+🧠 Tip
+When creating additional tests, make sure:
+Resource names match exactly between resources and request keys
+Tests check either success or failure on valid criteria
+Give descriptive test function names (helps test output)
+Want More Test Case Ideas?
+Here are some you can add:
+✔ Test where no requests → should return True
+✔ Test where one resource exceeds capacity → False
+✔ Test with negative request amounts → error or False
+✔ Test where resource capacity is zero → feasible only with zero requests
+If you want, I can help you write 5 complete additional tests for your test file!"
+--------------------------------------------------
+Finally I asked it to create 3 more tests
+Prompt 6: "Ok I fixed it now add 3 more tests"
+LLM Response 6:
+"Test: No Requests (Empty List)
+If there are no requests, nothing needs to be allocated → should be feasible.
+def test_no_requests_is_feasible():
+ resources = {'cpu': 5, 'mem': 10}
+ requests = []
+ assert is_allocation_feasible(resources, requests) is True
+✅ 2. Test: Request Exceeds Capacity
+Here the total CPU requests go over the available capacity → should be infeasible.
+def test_request_exceeds_capacity():
+ resources = {'cpu': 6}
+ requests = [{'cpu': 3}, {'cpu': 4}]
+ assert is_allocation_feasible(resources, requests) is False
+✅ 3. Test: Non-Numeric Request Amount Should Raise Error
+Requests must have numeric values. If someone passes a string, it should raise a ValueError (per the validation logic your implementation should have):
+import pytest
+
+def test_request_with_non_numeric_amount_raises():
+ resources = {'cpu': 10}
+ requests = [{'cpu': 5}, {'cpu': 'ten'}]
+ with pytest.raises(ValueError):
+ is_allocation_feasible(resources, requests)
+🔍 Why These Are Valuable
+Test What It Checks
+Empty requests Feasibility logic handles base case
+Exceeding capacity Correct detection when allocations don’t fit
+Invalid value type Input validation for request values
+These help ensure your function works correctly and robustly beyond the basic public tests.
+🧠 Tip for Naming Tests
+To make your test suite easier to read and debug when tests fail, use descriptive names like:
+test_no_requests_is_feasible
+test_request_exceeds_capacity
+test_request_with_non_numeric_amount_raises
+If you want, I can also help you generate the full updated test_solution.py file with all your tests combined!"
+--------------------------------------------------
