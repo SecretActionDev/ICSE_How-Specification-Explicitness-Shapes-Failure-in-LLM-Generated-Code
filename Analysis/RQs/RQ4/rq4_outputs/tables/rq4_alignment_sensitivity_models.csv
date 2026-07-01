@@ -1,0 +1,8 @@
+predictor,n,estimate,std_error,ci_low,ci_high,p_value,model,p_adj_fdr
+alignment_score,86,-7.769813623227989,3.510246417632963,-14.64977017864934,-0.8898570678066369,0.02686548522876798,"OLS with participant-clustered SEs, adjusted for condition, phase, task, skill, familiarity",0.09402919830068822
+omission_rate,86,7.769813623227982,3.510246417632962,0.8898570678066315,14.649770178649334,0.02686548522876806,"OLS with participant-clustered SEs, adjusted for condition, phase, task, skill, familiarity",0.09402919830068822
+explicitly_referred_to_specification,86,-5.228795285052303,3.4230232352665415,-11.937797544418501,1.4802069743138944,0.1266274874148595,"OLS with participant-clustered SEs, adjusted for condition, phase, task, skill, familiarity",0.22159810297600413
+carried_constraints_from_spec,86,-3.8008342134012407,2.7571414273179244,-9.204732111227731,1.6030636844252504,0.16803612662513256,"OLS with participant-clustered SEs, adjusted for condition, phase, task, skill, familiarity",0.23525057727518559
+carried_edge_cases_from_spec,86,-4.178903858069676,2.733525035307245,-9.536514478110455,1.178706761971104,0.12632394055791346,"OLS with participant-clustered SEs, adjusted for condition, phase, task, skill, familiarity",0.22159810297600413
+asked_to_preserve_invariants,86,-2.6884283498235195,3.2449213898067892,-9.048357406508483,3.671500706861445,0.40738547970676,"OLS with participant-clustered SEs, adjusted for condition, phase, task, skill, familiarity",0.47528305965788664
+asked_to_update_or_generate_tests_based_on_spec,86,-2.1178706222563877,3.3684897582319486,-8.71998923068304,4.484247986170265,0.529525823271672,"OLS with participant-clustered SEs, adjusted for condition, phase, task, skill, familiarity",0.529525823271672
