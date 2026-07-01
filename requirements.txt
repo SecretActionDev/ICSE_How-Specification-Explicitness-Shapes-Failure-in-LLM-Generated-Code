@@ -1,0 +1,23 @@
+# Python 3.10+
+# Tested environment for reproducing the paper analyses offline.
+
+jupyterlab==4.5.3
+nbconvert==7.17.1
+ipykernel==7.2.0
+
+numpy==2.3.5
+pandas==2.2.3
+scipy==1.17.0
+statsmodels==0.14.6
+patsy==1.0.2
+scikit-learn==1.8.0
+
+matplotlib==3.10.8
+tqdm==4.67.3
+pytest==9.0.2
+pyprojroot==0.3.0
+
+# Optional: only required to rerun the external LLM-based prompt-labeling cells.
+# The released coded prompt datasets are sufficient to reproduce the paper
+# without an API key or network access.
+# groq
