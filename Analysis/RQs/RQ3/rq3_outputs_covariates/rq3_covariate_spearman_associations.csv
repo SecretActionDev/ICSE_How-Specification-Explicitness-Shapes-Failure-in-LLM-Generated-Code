@@ -1,0 +1,15 @@
+sample,covariate,outcome,n,spearman_rho,p_value
+All conditions,llm_familiarity,regression_severity,65,0.018083645044838025,0.8863077458979615
+All conditions,llm_familiarity,regression_rate,65,0.027033806914149066,0.830731454984153
+All conditions,python_skill,regression_severity,65,0.046913665655038565,0.7105663174461592
+All conditions,python_skill,regression_rate,65,0.05249634828142735,0.6779124475814352
+All conditions,p2_total_prompt_count,regression_severity,72,0.06381954922987275,0.5943155219071731
+All conditions,p2_total_prompt_count,regression_rate,71,0.0642444595786333,0.5945354414797595
+All conditions,p2_average_prompt_len,regression_severity,72,0.03677231456046041,0.7590973796551599
+All conditions,p2_average_prompt_len,regression_rate,71,0.04208563365842638,0.727479873565564
+All conditions,delta_total_prompt_count,regression_severity,70,0.10398130483440376,0.3916488373908512
+All conditions,delta_total_prompt_count,regression_rate,70,0.1074602388763002,0.37591066721844313
+G2/G3,phase2_alignment_score,regression_severity,48,0.13871846657340225,0.347067340535949
+G2/G3,phase2_alignment_score,regression_rate,47,0.13260013375324586,0.37426414835599897
+G2/G3,phase2_omission_rate,regression_severity,48,-0.13871846657340225,0.347067340535949
+G2/G3,phase2_omission_rate,regression_rate,47,-0.13260013375324586,0.37426414835599897

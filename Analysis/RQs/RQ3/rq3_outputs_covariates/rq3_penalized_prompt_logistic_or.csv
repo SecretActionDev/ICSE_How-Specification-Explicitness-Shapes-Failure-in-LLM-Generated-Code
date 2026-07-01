@@ -1,0 +1,8 @@
+term,coef,penalized_OR,outcome,family,n,events_or_total_count
+cat__specification_G2,-0.466724803860855,0.6270526291328713,regression_occurrence,logistic,65,8
+cat__specification_G3,0.12616850109558023,1.1344733121746031,regression_occurrence,logistic,65,8
+cat__Task_B,0.03802534354855539,1.0387575583475233,regression_occurrence,logistic,65,8
+num__llm_familiarity,0.03214773258726047,1.0326700530554282,regression_occurrence,logistic,65,8
+num__python_skill,0.029991775164551815,1.0304460586693922,regression_occurrence,logistic,65,8
+num__p2_total_prompt_count,-0.08895528808584625,0.9148864789856744,regression_occurrence,logistic,65,8
+num__p2_average_prompt_len,-0.06996770818437774,0.9324239290814054,regression_occurrence,logistic,65,8

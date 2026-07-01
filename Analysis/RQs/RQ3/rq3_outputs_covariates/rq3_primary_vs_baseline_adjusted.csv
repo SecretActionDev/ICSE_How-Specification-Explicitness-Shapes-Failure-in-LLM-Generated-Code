@@ -1,0 +1,5 @@
+model,term,OR,CI_low,CI_high,p_value,n
+Primary: specification + task,"C(specification, Treatment(reference=""G1""))[T.G2]",1.0000000000000004,0.12828571807502462,7.795099992465073,0.9999999999999998,72
+Primary: specification + task,"C(specification, Treatment(reference=""G1""))[T.G3]",2.2151586556663534,0.36259333442403235,13.532868378752909,0.38906432957018167,72
+Baseline adjusted: + Q2 + Q4,"C(specification, Treatment(reference=""G1""))[T.G2]",0.9603894628771351,0.11513605107445306,8.010939334796129,0.9702108518960981,65
+Baseline adjusted: + Q2 + Q4,"C(specification, Treatment(reference=""G1""))[T.G3]",2.3774187051054705,0.3424264073826056,16.506085913724664,0.38105205183950097,65

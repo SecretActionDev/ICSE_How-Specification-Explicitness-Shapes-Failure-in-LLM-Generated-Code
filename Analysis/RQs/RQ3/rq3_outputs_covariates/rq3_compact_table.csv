@@ -1,0 +1,4 @@
+Spec.,N,Any regression,"Severity, mean (median)","Regression rate, mean",Mean Phase I passed,Mean newly fixed
+G1,24,2/24 (8.3%),0.08 (0.0),0.58%,11.458333333333334,1.75
+G2,24,2/24 (8.3%),0.38 (0.0),2.38%,13.333333333333334,11.0
+G3,24,4/24 (16.7%),0.17 (0.0),0.7%,21.625,3.4166666666666665

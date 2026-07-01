@@ -1,0 +1,7 @@
+term,coef,penalized_IRR,outcome,family,n,events_or_total_count
+cat__specification_G3,-0.04219334932727779,0.9586844016674847,regression_severity,poisson,45,13.0
+cat__Task_B,0.08219480467866261,1.0856672822970297,regression_severity,poisson,45,13.0
+num__llm_familiarity,0.06238778236137832,1.0643750105655851,regression_severity,poisson,45,13.0
+num__python_skill,0.061467770541473184,1.0633962232920224,regression_severity,poisson,45,13.0
+num__p2_total_prompt_count,-0.14451177544081617,0.8654447213500089,regression_severity,poisson,45,13.0
+num__phase2_alignment_score,0.1525007365262539,1.1647433199583326,regression_severity,poisson,45,13.0
